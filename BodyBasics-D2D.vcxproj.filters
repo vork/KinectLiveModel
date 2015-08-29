@@ -1,21 +1,84 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="BodyBasics.cpp" />
     <ClCompile Include="Landscape3DSceneRenderer.cpp">
+      <Filter>Landscape</Filter>
+    </ClCompile>
+    <ClCompile Include="Body3DRenderer.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="BodyBasics.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DClass.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsClass.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="InputClass.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="KinectClass.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemClass.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelClass.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraClass.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="TextureShaderClass.cpp">
+      <Filter>Landscape</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureClass.cpp">
       <Filter>Landscape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BodyBasics.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="Landscape3DSceneRenderer.h">
       <Filter>Landscape</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="BodyBasics.rc" />
+    <ClInclude Include="Body3DRenderer.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="BodyBasics.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DClass.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsClass.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="InputClass.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="KinectClass.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemClass.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelClass.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraClass.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureShaderClass.h">
+      <Filter>Landscape</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureClass.h">
+      <Filter>Landscape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
@@ -24,13 +87,19 @@
     <Filter Include="Landscape">
       <UniqueIdentifier>{7f061107-80e9-49ef-af77-e26a86ebe125}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Kinect">
+      <UniqueIdentifier>{1b8c8f81-4441-40d2-b40d-5c74bd19b893}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helper">
+      <UniqueIdentifier>{aaa003d1-d1ee-4dc6-a2cf-c81419fe4d78}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SamplePixelShader.hlsl">
+    <None Include="TextureVertexShader.hlsl">
       <Filter>Landscape</Filter>
-    </FxCompile>
-    <FxCompile Include="SampleVertexShader.hlsl">
+    </None>
+    <None Include="TexturePixelShader.hlsl">
       <Filter>Landscape</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

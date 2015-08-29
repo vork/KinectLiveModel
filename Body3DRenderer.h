@@ -5,4 +5,3 @@ public:
 	Body3DRenderer();
 	~Body3DRenderer();
 };
-

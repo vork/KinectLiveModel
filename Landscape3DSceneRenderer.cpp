@@ -1,19 +1,19 @@
 #include "Landscape3DSceneRenderer.h"
-#include <d3dcompiler.h>
+#include "D3DClass.h"
 
-#pragma comment(lib,"d3dcompiler.lib")
+#pragma warning ( disable : 4005 )
 
-using namespace KinectLiveAnimation;
-
-Landscape3DSceneRenderer::Landscape3DSceneRenderer() {
-
+Landscape3DSceneRenderer::Landscape3DSceneRenderer(D3DClass* d3dcl) :
+	m_pD3DClass(d3dcl)
+{
 }
 
-void Landscape3DSceneRenderer::Initialise(ID3D11Device *device) {
-	m_pDevice = device;
+void Landscape3DSceneRenderer::Initialise()
+{
 }
 
-void Landscape3DSceneRenderer::Shutdown() {
+void Landscape3DSceneRenderer::Shutdown()
+{
 	vsBlob->Release();
 	psBlob->Release();
 
@@ -23,8 +23,6 @@ void Landscape3DSceneRenderer::Shutdown() {
 	free(m_pInputLayout);
 	free(*m_ppVertexShader);
 	free(*m_ppPixelShader);
-	free(m_pRasterState);
-	free(m_pDevice);
 	vsBlob->Release();
 	psBlob->Release();
 	free(m_pVertecies); //TODO check if everything is cleared
@@ -33,8 +31,8 @@ void Landscape3DSceneRenderer::Shutdown() {
 bool Landscape3DSceneRenderer::LoadMesh(const std::string& Filename)
 {
 	Assimp::Importer Importer;
-	const aiScene *pScene = NULL;
-	const aiMesh *pMesh = NULL;
+	const aiScene* pScene = NULL;
+	const aiMesh* pMesh = NULL;
 
 	pScene = Importer.ReadFile(Filename.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
 
@@ -72,15 +70,15 @@ bool Landscape3DSceneRenderer::LoadMesh(const std::string& Filename)
 
 	for (int i = 0; i < pMesh->mNumVertices; i++)
 	{
-		Vertex *pvertex = new Vertex{
-			D2D1_VECTOR_3F{ pMesh->mVertices[i].x, pMesh->mVertices[i].y, pMesh->mVertices[i].z },
+		Vertex* pvertex = new Vertex{
+			D2D1_VECTOR_3F{pMesh->mVertices[i].x, pMesh->mVertices[i].y, pMesh->mVertices[i].z},
 			//D2D1_VECTOR_2F{ pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y }, 
-			D2D1_VECTOR_3F{ pMesh->mNormals[i].x, pMesh->mNormals[i].y, pMesh->mNormals[i].z }
+			D2D1_VECTOR_3F{pMesh->mNormals[i].x, pMesh->mNormals[i].y, pMesh->mNormals[i].z}
 		};
 		m_pVertecies[i] = *pvertex;
 	}
 
-	D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
+	D3D11_SUBRESOURCE_DATA vertexBufferData = {0};
 	vertexBufferData.pSysMem = m_pVertecies;
 	vertexBufferData.SysMemPitch = 0;
 	vertexBufferData.SysMemSlicePitch = 0;
@@ -88,80 +86,83 @@ bool Landscape3DSceneRenderer::LoadMesh(const std::string& Filename)
 
 	HRESULT hr;
 
-	
-	hr = m_pDevice->CreateBuffer(
-		&vertexBufferDesc,
-		&vertexBufferData,
-		&m_pVertexBuffer
-	);
 
-	if (FAILED(hr)) {
-		return;
+	hr = m_pD3DClass->GetDevice()->CreateBuffer(
+		                &vertexBufferDesc,
+		                &vertexBufferData,
+		                &m_pVertexBuffer
+	                );
+
+	if (FAILED(hr))
+	{
+		return false;
 	}
 
 	unsigned int* indices = new unsigned int[m_NumIndices];
 
-	for (unsigned int i = 0; i < pMesh->mNumFaces; i++) {
+	for (unsigned int i = 0; i < pMesh->mNumFaces; i++)
+	{
 		indices[i * 3 + 0] = pMesh->mFaces[i].mIndices[0];
 		indices[i * 3 + 1] = pMesh->mFaces[i].mIndices[1];
 		indices[i * 3 + 2] = pMesh->mFaces[i].mIndices[2];
 	}
 
-	D3D11_SUBRESOURCE_DATA indexBufferData = { 0 };
+	D3D11_SUBRESOURCE_DATA indexBufferData = {0};
 	indexBufferData.pSysMem = indices;
 	indexBufferData.SysMemPitch = 0;
 	indexBufferData.SysMemSlicePitch = 0;
 	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(indices), D3D11_BIND_INDEX_BUFFER);
-	
-	hr = m_pDevice->CreateBuffer(
-		&indexBufferDesc,
-		&indexBufferData,
-		&m_pIndexBuffer
-	);
 
-	if (FAILED(hr)) {
-		return;
+	hr = m_pD3DClass->GetDevice()->CreateBuffer(
+		                &indexBufferDesc,
+		                &indexBufferData,
+		                &m_pIndexBuffer
+	                );
+
+	if (FAILED(hr))
+	{
+		return false;
 	}
 
 	//TODO add textures
 
 	// Compile vertex shader shader
 	vsBlob = nullptr;
-	HRESULT hr = CompileShader(L"SimpleVertexShader.hlsl", "main", "vs_5_0", &vsBlob);
+	hr = m_pD3DClass->CompileShader(L"SimpleVertexShader.hlsl", "VSMain", "vs_4_0_level_9_1", &vsBlob);
 	if (FAILED(hr))
 	{
 		printf("Failed compiling vertex shader %08X\n", hr);
-		return -1;
+		return false;
 	}
 
 	// Compile pixel shader shader
 	psBlob = nullptr;
-	hr = CompileShader(L"SimplePixelShader.hlsl", "main", "ps_5_0", &psBlob);
+	hr = m_pD3DClass->CompileShader(L"SimplePixelShader.hlsl", "PSMain", "ps_4_0_level_9_1", &psBlob);
 	if (FAILED(hr))
 	{
-		vsBlob->Release();
 		printf("Failed compiling pixel shader %08X\n", hr);
-		return -1;
-	}
-
-	printf("Success\n");
-
-	hr = m_pDevice->CreateVertexShader((DWORD*)vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, m_ppVertexShader);
-
-	if (FAILED(hr)) {
 		return false;
 	}
 
-	hr = m_pDevice->CreatePixelShader((DWORD*)psBlob->GetBufferPointer(), psBlob->GetBufferSize(), NULL, m_ppPixelShader);
+	printf("Success\n");
+	hr = m_pD3DClass->GetDevice()->CreateVertexShader((DWORD*)vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, m_ppVertexShader);
 
-	if (FAILED(hr)) {
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
+	hr = m_pD3DClass->GetDevice()->CreatePixelShader((DWORD*)psBlob->GetBufferPointer(), psBlob->GetBufferSize(), NULL, m_ppPixelShader);
+
+	if (FAILED(hr))
+	{
 		return false;
 	}
 
 	return true;
 }
 
-void Landscape3DSceneRenderer::Render(ID3D11DeviceContext2 *context)
+void Landscape3DSceneRenderer::Render(ID3D11DeviceContext* context)
 {
 	// Each vertex is one instance of the VertexPositionColor struct.
 	UINT stride = sizeof(Vertex);
@@ -183,46 +184,4 @@ void Landscape3DSceneRenderer::Render(ID3D11DeviceContext2 *context)
 
 	// Draw the objects.
 	context->DrawIndexed(m_NumIndices, 0, 0);
-}
-
-HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob)
-{
-	if (!srcFile || !entryPoint || !profile || !blob)
-		return E_INVALIDARG;
-
-	*blob = nullptr;
-
-	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
-	flags |= D3DCOMPILE_DEBUG;
-#endif
-
-	const D3D_SHADER_MACRO defines[] =
-	{
-		"EXAMPLE_DEFINE", "1",
-		NULL, NULL
-	};
-
-	ID3DBlob* shaderBlob = nullptr;
-	ID3DBlob* errorBlob = nullptr;
-	HRESULT hr = D3DCompileFromFile(srcFile, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		entryPoint, profile,
-		flags, 0, &shaderBlob, &errorBlob);
-	if (FAILED(hr))
-	{
-		if (errorBlob)
-		{
-			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-			errorBlob->Release();
-		}
-
-		if (shaderBlob)
-			shaderBlob->Release();
-
-		return hr;
-	}
-
-	*blob = shaderBlob;
-
-	return hr;
 }

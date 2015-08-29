@@ -12,14 +12,14 @@ cbuffer cbPerFrame : register(b1)
 Texture2D    g_txDiffuse : register(t0);
 SamplerState g_samLinear : register(s0);
 
-struct PixelShaderInput
+struct PS_INPUT
 {
 	float3 vNormal        : NORMAL;
 	float2 vTexcoord    : TEXCOORD0;
 };
 
 // A pass-through function for the (interpolated) color data.
-float4 main(PixelShaderInput input) : SV_TARGET
+float4 PSMain(PS_INPUT Input) : SV_TARGET
 {
 	float4 vDiffuse = g_txDiffuse.Sample(g_samLinear, Input.vTexcoord);
 
