@@ -16,7 +16,7 @@ static const float c_HandSize = 30.0f;
 /// <summary>
 /// Constructor
 /// </summary>
-CBodyBasics::CBodyBasics(Kinect* kinectcl, System* systemcl) :
+CBodyBasics::CBodyBasics(KinectHelper* kinectcl, System* systemcl) :
 	m_pD2DFactory(NULL),
 	m_pRenderTarget(NULL),
 	m_pBrushJointTracked(NULL),

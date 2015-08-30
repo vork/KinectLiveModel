@@ -16,7 +16,7 @@ public:
 	/// <summary>
 	/// Constructor
 	/// </summary>
-	CBodyBasics(Kinect*, System*);
+	CBodyBasics(KinectHelper*, System*);
 
 	/// <summary>
 	/// Destructor
@@ -26,7 +26,7 @@ private:
 	static const int cDepthWidth = 512;
 	static const int cDepthHeight = 424;
 
-	Kinect* m_pKinectClass;
+	KinectHelper* m_pKinectClass;
 	System* m_pSystemClass;
 
 	// Direct2D
