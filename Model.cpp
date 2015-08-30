@@ -109,9 +109,14 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 
 	for (int i = 0; i < pMesh->mNumVertices; i++)
 	{
-		Vertices[i].position = XMFLOAT3(pMesh->mVertices[i].x, pMesh->mVertices[i].y, pMesh->mVertices[i].z);
-		Vertices[i].texture = XMFLOAT2(pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y);//TODO CHECK THIS!
-		Vertices[i].normal = XMFLOAT3(pMesh->mNormals[i].x, pMesh->mNormals[i].y, pMesh->mNormals[i].z);
+		XMFLOAT3 pos(pMesh->mVertices[i].x, pMesh->mVertices[i].y, pMesh->mVertices[i].z);
+		Vertices[i].position = pos;
+		if (pMesh->GetNumUVChannels() > 0) {
+			XMFLOAT2 texcoord(pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y);
+			Vertices[i].texture = texcoord;//TODO CHECK THIS!
+		}
+		XMFLOAT3 normals(pMesh->mNormals[i].x, pMesh->mNormals[i].y, pMesh->mNormals[i].z);
+		Vertices[i].normal = normals;
 	}
 
 	for (unsigned int i = 0; i < pMesh->mNumFaces; i++)
@@ -174,6 +179,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 bool Model::InitMaterials(const aiScene* pScene, const std::string& Filename, ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	m_Materials.resize(pScene->mNumMaterials);
+	mat_Count = pScene->mNumMaterials;
 	for (unsigned int i = 0; i < pScene->mNumMaterials; i++) {
 		const aiMaterial* pMaterial = pScene->mMaterials[i];
 
@@ -233,7 +239,7 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context
 
 	std::string filename = "Snow Biom C4D Small.dae";
 
-	pScene = Importer.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
+	pScene = Importer.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_TransformUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
 	
 	if (!pScene)
 	{
@@ -275,12 +281,12 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext, TextureShader* tex
 	stride = sizeof(VertexType);
 	offset = 0;
 
-	XMMATRIX translate = XMMatrixTranslation(0.f, 10.f, 0.f);
-	XMMATRIX WVP = XMMatrixMultiply(*world, XMMatrixMultiply(*view, *projection));
-
-	XMMATRIX update = XMMatrixMultiply(WVP, translate);
 	for (unsigned int i = 0; i < m_Entries.size(); i++)
 	{
+		if (m_Entries[i].NumIndices == 0)
+		{
+			continue;
+		}
 
 		MeshEntry curEntry = m_Entries[i];
 

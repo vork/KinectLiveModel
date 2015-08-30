@@ -41,9 +41,9 @@ float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-	float3 color = (saturate(ambient + diffuse) * textureColor + specular) * dirLightColor + emissive;
-	// Calculate the transparency
-	float alpha = materialDiffuse.a * textureColor.a;
+	float3 color = (saturate(ambient + diffuse) + specular) * dirLightColor + emissive; // * textureColor + specular) * dirLightColor + emissive;
+		// Calculate the transparency
+		float alpha = materialDiffuse.a;// *textureColor.a;
 	// Return the pixel's color
 	return float4(color, alpha);
 }

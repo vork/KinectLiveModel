@@ -22,9 +22,9 @@ public:
 	bool Frame();
 
 private:
-	bool Render();
+	bool Render(float);
 
-	D3Device* m_D3D;
+	D3Device* m_device;
 
 	struct Light
 	{
@@ -38,8 +38,6 @@ private:
 	};
 
 	Light light;
-
-	float rotate;
 
 	Camera* m_Camera;
 	Model* m_Model;
