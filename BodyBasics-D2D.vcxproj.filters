@@ -38,6 +38,9 @@
     <ClCompile Include="TextureShader.cpp">
       <Filter>Landscape</Filter>
     </ClCompile>
+    <ClCompile Include="RigJoint.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Landscape3DSceneRenderer.h">
@@ -79,6 +82,9 @@
     <ClInclude Include="TextureShader.h">
       <Filter>Landscape</Filter>
     </ClInclude>
+    <ClInclude Include="RigJoint.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
@@ -95,11 +101,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TextureVertexShader.hlsl">
-      <Filter>Landscape</Filter>
-    </None>
     <None Include="TexturePixelShader.hlsl">
       <Filter>Landscape</Filter>
     </None>
+    <None Include="BodyVertexShader.hlsl">
+      <Filter>Kinect</Filter>
+    </None>
+    <None Include="BodyPixelShader.hlsl">
+      <Filter>Kinect</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="TextureVertexShader.hlsl">
+      <Filter>Landscape</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

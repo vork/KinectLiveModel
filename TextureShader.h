@@ -34,10 +34,15 @@ public:
 private:
 	struct MatrixBufferType
 	{
-		XMMATRIX worldviewproj;
-		XMMATRIX worldIT;
 		XMMATRIX world;
-		XMFLOAT3 viewPosition;
+		XMMATRIX view;
+		XMMATRIX projection;
+	};
+
+	struct CameraBufferType
+	{
+		XMFLOAT3 cameraPosition;
+		float padding;
 	};
 
 	struct MaterialBufferType {
@@ -56,6 +61,7 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
+	ID3D11Buffer* m_cameraBuffer;
 	ID3D11Buffer* m_materialBuffer;
 
 	ID3D11SamplerState* m_sampleState;

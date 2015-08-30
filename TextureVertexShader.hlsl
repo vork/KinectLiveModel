@@ -1,10 +1,15 @@
 cbuffer MatrixBuffer
 {
-	float4x4 matWorldViewProj : WORLDVIEWPROJECTION;
-	float4x3 matWorldIT : WORLDINVERSETRANSPOSE;
-	float4x4 matWorld : WORLD;
-	float3 viewPosition : VIEWPOSITION;
-}
+	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
+};
+
+cbuffer CameraBuffer
+{
+	float3 cameraPosition;
+	float padding;
+};
 
 struct VertexInputType
 {
@@ -17,24 +22,40 @@ struct PixelInputType
 {
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
-	float3 normal : TEXCOORD1;
-	float3 view : TEXCOORD2;
+	float3 normal : NORMAL;
+	float3 view : TEXCOORD1;
 };
 
 PixelInputType TextureVertexShader(VertexInputType input)
 {
 	PixelInputType output;
+	float4 worldPosition;
 
-	// Calculate the position of the vertex against the worldviewprojection matrix
-	output.position = mul(input.position, matWorldViewProj);
+	// Change the position vector to be 4 units for proper matrix calculations.
+	input.position.w = 1.0f;
+
+	// Calculate the position of the vertex against the world, view, and projection matrices.
+	output.position = mul(input.position, worldMatrix);
+	output.position = mul(output.position, viewMatrix);
+	output.position = mul(output.position, projectionMatrix);
 
 	// Store the texture coordinates for the pixel shader.
 	output.tex = input.tex;
 
-	output.normal = mul(matWorldIT, input.normal);
+	// Calculate the normal vector against the world matrix only.
+	output.normal = mul(input.normal, (float3x3)worldMatrix);
 
-	float3 worldPos = mul(input.position, matWorld).xyz;
-	output.view = viewPosition - worldPos;
+	// Normalize the normal vector.
+	output.normal = normalize(output.normal);
+
+	// Calculate the position of the vertex in the world.
+	worldPosition = mul(input.position, worldMatrix);
+
+	// Determine the viewing direction based on the position of the camera and the position of the vertex in the world.
+	output.view = cameraPosition.xyz - worldPosition.xyz;
+
+	// Normalize the viewing direction vector.
+	output.view = normalize(output.view);
 
 	return output;
 }
