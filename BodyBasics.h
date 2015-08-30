@@ -6,8 +6,8 @@
 
 #pragma once
 #include <d2d1.h>
-#include "KinectClass.h"
-#include "SystemClass.h"
+#include "Kinect.h"
+#include "System.h"
 
 
 class CBodyBasics
@@ -16,7 +16,7 @@ public:
 	/// <summary>
 	/// Constructor
 	/// </summary>
-	CBodyBasics(KinectClass*, SystemClass*);
+	CBodyBasics(Kinect*, System*);
 
 	/// <summary>
 	/// Destructor
@@ -26,8 +26,8 @@ private:
 	static const int cDepthWidth = 512;
 	static const int cDepthHeight = 424;
 
-	KinectClass* m_pKinectClass;
-	SystemClass* m_pSystemClass;
+	Kinect* m_pKinectClass;
+	System* m_pSystemClass;
 
 	// Direct2D
 	ID2D1Factory* m_pD2DFactory;

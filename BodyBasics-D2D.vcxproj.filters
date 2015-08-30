@@ -10,32 +10,32 @@
     <ClCompile Include="BodyBasics.cpp">
       <Filter>Kinect</Filter>
     </ClCompile>
-    <ClCompile Include="D3DClass.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsClass.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="InputClass.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="KinectClass.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemClass.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelClass.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraClass.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="TextureShaderClass.cpp">
+    <ClCompile Include="Camera.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="D3Device.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Kinect.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
       <Filter>Landscape</Filter>
     </ClCompile>
-    <ClCompile Include="TextureClass.cpp">
+    <ClCompile Include="System.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Landscape</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureShader.cpp">
       <Filter>Landscape</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,34 +49,34 @@
     <ClInclude Include="BodyBasics.h">
       <Filter>Kinect</Filter>
     </ClInclude>
-    <ClInclude Include="D3DClass.h">
-      <Filter>Helper</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsClass.h">
-      <Filter>Helper</Filter>
-    </ClInclude>
-    <ClInclude Include="InputClass.h">
-      <Filter>Helper</Filter>
-    </ClInclude>
-    <ClInclude Include="KinectClass.h">
-      <Filter>Helper</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemClass.h">
-      <Filter>Helper</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Helper</Filter>
     </ClInclude>
-    <ClInclude Include="ModelClass.h">
+    <ClInclude Include="Camera.h">
       <Filter>Helper</Filter>
     </ClInclude>
-    <ClInclude Include="CameraClass.h">
+    <ClInclude Include="D3Device.h">
       <Filter>Helper</Filter>
     </ClInclude>
-    <ClInclude Include="TextureShaderClass.h">
+    <ClInclude Include="Graphics.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Kinect.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
       <Filter>Landscape</Filter>
     </ClInclude>
-    <ClInclude Include="TextureClass.h">
+    <ClInclude Include="System.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Landscape</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureShader.h">
       <Filter>Landscape</Filter>
     </ClInclude>
   </ItemGroup>

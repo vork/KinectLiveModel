@@ -1,4 +1,4 @@
-#include "SystemClass.h"
+#include "System.h"
 #include <iostream>
 
 int APIENTRY wWinMain(
@@ -8,14 +8,14 @@ int APIENTRY wWinMain(
 	_In_ int nShowCmd
 	)
 {
-	SystemClass* System;
+	System* system;
 	bool result;
 
 	std::cout << "Starting" << std::endl;
 
 	// Create the system object.
-	System = new SystemClass;
-	if (!System)
+	system = new System;
+	if (!system)
 	{
 		return 0;
 	}
@@ -23,16 +23,16 @@ int APIENTRY wWinMain(
 	// Initialize and run the system object.
 
 	std::cout << "about to initialize" << std::endl;
-	result = System->Initialize();
+	result = system->Initialize();
 	if (result)
 	{
-		System->Run();
+		system->Run();
 	}
 
 	// Shutdown and release the system object.
-	System->Shutdown();
-	delete System;
-	System = 0;
+	system->Shutdown();
+	delete system;
+	system = 0;
 
 	return 0;
 }

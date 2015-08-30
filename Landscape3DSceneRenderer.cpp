@@ -3,7 +3,7 @@
 
 #pragma warning ( disable : 4005 )
 
-Landscape3DSceneRenderer::Landscape3DSceneRenderer(D3DClass* d3dcl) :
+Landscape3DSceneRenderer::Landscape3DSceneRenderer(D3Device* d3dcl) :
 	m_pD3DClass(d3dcl)
 {
 }
