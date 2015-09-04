@@ -48,7 +48,8 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 1.0f, -5.0f);
+	m_Camera->SetPosition(-2.0f, 1.2f, -1.4f);
+	m_Camera->SetRotation(0.f, 0.f, 0.f);
 
 	// Create the model object.
 	m_Model = new Model;
@@ -80,8 +81,8 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	light.dir = XMFLOAT3(0.25f, 0.5f, -1.0f);
-	light.pos = XMFLOAT3(0.f, 20.f, 0.f);
+	light.dir = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	light.pos = XMFLOAT3(0.f, 0.f, 0.f);
 	light.color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	return true;
@@ -131,9 +132,8 @@ bool Graphics::Frame()
 
 	static float rotation = 0.0f;
 
-
 	// Update the rotation variable each frame.
-	rotation += (float)XM_PI * 0.01f;
+	rotation += (float)XM_PI * 0.001f;
 	if (rotation > 360.0f)
 	{
 		rotation -= 360.0f;

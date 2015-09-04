@@ -411,12 +411,10 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 	matDataPtr = (MaterialBufferType*)mappedResource.pData;
 
 	// Copy the material variables into the constant buffer.
-	matDataPtr->materialEmissive = input->materialEmissive;
 	matDataPtr->materialAmbient = input->materialAmbient;
 	matDataPtr->materialDiffuse = input->materialDiffuse;
 	matDataPtr->materialPower = input->materialPower;
 	matDataPtr->materialSpecular = input->materialSpecular;
-	matDataPtr->dirLightColor = input->lightColor;
 	matDataPtr->dirLightDir = input->lightDir;
 
 	// Unlock the constant buffer.

@@ -43,14 +43,12 @@ private:
 
 	struct MaterialType
 	{
-		XMFLOAT3 materialEmissive;
-		XMFLOAT3 materialAmbient;
+		XMFLOAT4 materialAmbient;
 		XMFLOAT4 materialDiffuse;
-		XMFLOAT3 materialSpecular;
+		XMFLOAT4 materialSpecular;
 		float materialPower;
 
 		XMFLOAT3 dirLightDir;
-		XMFLOAT3 dirLightColor;
 
 		string texture;
 	};
@@ -60,6 +58,16 @@ private:
 		ID3D11Buffer *IB;
 		unsigned int NumIndices;
 		unsigned int MaterialIndex;
+	};
+
+	struct BoundingBox
+	{
+		int min_x;
+		int max_x;
+		int min_y;
+		int max_y;
+		int min_z;
+		int max_z;
 	};
 
 	std::vector<MaterialType> m_Materials;
@@ -73,6 +81,8 @@ private:
 	void RenderBuffers(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, XMFLOAT3*, XMFLOAT3*);
 	void InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device*);
 	bool InitMaterials(const aiScene* pScene, const std::string& Filename, ID3D11Device*, ID3D11DeviceContext*);
+	void traverseMeshChilds(aiNode* node);
+	void calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box);
 
 	void ReleaseTexture();
 };

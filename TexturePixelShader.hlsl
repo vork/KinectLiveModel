@@ -2,13 +2,11 @@ Texture2D shaderTexture;
 SamplerState SampleType;
 
 cbuffer MaterialBuffer{
-	float3 materialEmissive;
-	float3 materialAmbient;
+	float4 materialAmbient;
 	float4 materialDiffuse;
 	float3 materialSpecular;
 	float materialPower;
 	float3 dirLightDir;
-	float3 dirLightColor;
 }
 
 struct PixelInputType
@@ -22,28 +20,35 @@ struct PixelInputType
 float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 {
 	float4 textureColor;
+	float3 lightDir;
+	float lightIntensity;
+	float4 color;
+	float3 reflection;
+	float4 specular;
 
-	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-	float3 light = normalize(-dirLightDir);
+	lightDir = normalize(-dirLightDir);
 	float3 view = normalize(input.view);
 	float3 normal = normalize(input.normal);
 
-	float3 halfway = normalize(light + view);
+	color = materialAmbient;
+	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	// Calculate the emissive lighting
-	float3 emissive = materialEmissive;
-	// Calculate the ambient reflection
-	float3 ambient = materialAmbient;
-	// Calculate the diffuse reflection
-	float3 diffuse = saturate(dot(normal, light)) * materialDiffuse.rgb;
-	// Calculate the specular reflection
-	float3 specular = pow(saturate(dot(normal, halfway)), materialPower) * materialSpecular;
+	lightIntensity = saturate(dot(normal, lightDir));
 
-	float3 color = (saturate(ambient + diffuse) + specular) * dirLightColor + emissive; // * textureColor + specular) * dirLightColor + emissive; //
-	// Calculate the transparency
-	float alpha = materialDiffuse.a;// *textureColor.a;
-	// Return the pixel's color
-	return float4(color, alpha);
+	if (lightIntensity > 0.0f)
+	{
+		color += (materialDiffuse * lightIntensity);
+
+		color = saturate(color);
+		reflection = normalize(2 * lightIntensity * normal - lightDir);
+		specular = pow(saturate(dot(reflection, view)), materialPower);
+	}
+
+	color = color *textureColor;
+
+	color = saturate(color + specular);
+
+	return color;
 }

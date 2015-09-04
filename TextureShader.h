@@ -12,11 +12,9 @@ using namespace std;
 struct InputShaderClass
 {
 	XMFLOAT3 lightDir;
-	XMFLOAT3 lightColor;
-	XMFLOAT3 materialEmissive;
-	XMFLOAT3 materialAmbient;
+	XMFLOAT4 materialAmbient;
 	XMFLOAT4 materialDiffuse;
-	XMFLOAT3 materialSpecular;
+	XMFLOAT4 materialSpecular;
 	float materialPower;
 };
 
@@ -46,13 +44,11 @@ private:
 	};
 
 	struct MaterialBufferType {
-		XMFLOAT3 materialEmissive;
-		XMFLOAT3 materialAmbient;
+		XMFLOAT4 materialAmbient;
 		XMFLOAT4 materialDiffuse;
-		XMFLOAT3 materialSpecular;
+		XMFLOAT4 materialSpecular;
 		float materialPower;
 		XMFLOAT3 dirLightDir;
-		XMFLOAT3 dirLightColor;
 	};
 
 	Camera* m_pCameraClass;

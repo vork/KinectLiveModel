@@ -1,4 +1,5 @@
 #include "Model.h"
+#include <limits.h>
 
 
 Model::Model()
@@ -61,6 +62,39 @@ ID3D11ShaderResourceView* Model::GetTexture(int index)
 	return m_Textures[m_Materials[index].texture].GetTexture();
 }
 
+void Model::calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box)
+{
+	for (int i = 0; i < pMesh->mNumVertices; i++)
+	{
+		auto vertex = pMesh->mVertices[i];
+		if (bounding_box->max_x < vertex.x)
+		{
+			bounding_box->max_x = vertex.x;
+		}
+		if (bounding_box->min_x > vertex.x)
+		{
+			bounding_box->min_x = vertex.x;
+		}
+		if (bounding_box->max_y < vertex.y)
+		{
+			bounding_box->max_y = vertex.y;
+		}
+		if (bounding_box->min_y > vertex.y)
+		{
+			bounding_box->min_y = vertex.y;
+		}
+		if (bounding_box->max_z < vertex.z)
+		{
+			bounding_box->max_z = vertex.z;
+		}
+		if (bounding_box->min_z > vertex.z)
+		{
+			bounding_box->min_z = vertex.z;
+		}
+
+	}
+}
+
 void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* device)
 {
 	m_Entries[Index].MaterialIndex = pMesh->mMaterialIndex;
@@ -107,9 +141,26 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 		return;
 	}
 
+	BoundingBox box;
+	box.min_x = INT_MAX;
+	box.max_x = INT_MIN;
+	box.min_y = INT_MAX;
+	box.max_y = INT_MIN;
+	box.min_z = INT_MAX;
+	box.max_z = INT_MIN;
+
+	calculateBoundingBox(pMesh, &box);
+
+	int max, min;
+
+	max = max(box.max_x, max(box.max_y, box.max_z));
+	min = min(box.min_x, min(box.min_y, box.min_z));
+
+	int range = max - min;
+
 	for (int i = 0; i < pMesh->mNumVertices; i++)
 	{
-		XMFLOAT3 pos(pMesh->mVertices[i].x, pMesh->mVertices[i].y, pMesh->mVertices[i].z);
+		XMFLOAT3 pos(pMesh->mVertices[i].x / range * 5, pMesh->mVertices[i].y / range * 5, pMesh->mVertices[i].z / range * 5);
 		Vertices[i].position = pos;
 		if (pMesh->GetNumUVChannels() > 0) {
 			XMFLOAT2 texcoord(pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y);
@@ -183,21 +234,20 @@ bool Model::InitMaterials(const aiScene* pScene, const std::string& Filename, ID
 	for (unsigned int i = 0; i < pScene->mNumMaterials; i++) {
 		const aiMaterial* pMaterial = pScene->mMaterials[i];
 
-		aiColor3D emissive(0.f, 0.f, 0.f);
-		pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, emissive);
-		m_Materials[i].materialEmissive = XMFLOAT3(emissive.r, emissive.g, emissive.b);
-
-		aiColor3D ambient(0.f, 0.f, 0.f);
+		aiColor3D ambient(1.f, 1.f, 1.f);
+		//aiColor3D ambient(0.f, 0.f, 0.f);
 		pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
-		m_Materials[i].materialAmbient = XMFLOAT3(ambient.r, ambient.g, ambient.b);
+		m_Materials[i].materialAmbient = XMFLOAT4(ambient.r, ambient.g, ambient.b, 1.f);
 
-		aiColor4D diffuse(0.f, 0.f, 0.f, 0.f);
+		aiColor4D diffuse(1.f, 1.f, 1.f, 1.f);
+		//aiColor4D diffuse(0.f, 0.f, 0.f, 0.f);
 		pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
 		m_Materials[i].materialDiffuse = XMFLOAT4(diffuse.r, diffuse.g, diffuse.b, diffuse.a); //TODO hopefully the order is correct
 
-		aiColor3D specular(0.f, 0.f, 0.f);
+		aiColor3D specular(1.f, 1.f, 1.f);
+		//aiColor3D specular(0.f, 0.f, 0.f);
 		pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specular);
-		m_Materials[i].materialSpecular = XMFLOAT3(specular.r, specular.g, specular.b);
+		m_Materials[i].materialSpecular = XMFLOAT4(specular.r, specular.g, specular.b, 1.f);
 
 		float shininess = 0.f;
 		pMaterial->Get(AI_MATKEY_SHININESS, shininess);
@@ -237,9 +287,11 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context
 	const aiMesh* pMesh = NULL;
 	const aiMaterial* pMat = NULL;
 
-	std::string filename = "Snow Biom C4D Small.dae";
+	std::string filename = "Snow Biom C4D Small.dae"; //"World.dae";//"Snow Biom C4D Small.dae";
 
-	pScene = Importer.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_TransformUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
+	//Possible flags:  aiProcess_TransformUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph 
+	pScene = Importer.ReadFile(filename.c_str(),  aiProcess_Triangulate |
+		aiProcess_ConvertToLeftHanded | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
 	
 	if (!pScene)
 	{
@@ -255,6 +307,11 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context
 	}
 
 	return InitMaterials(pScene, filename, device, context);
+}
+
+void Model::traverseMeshChilds(aiNode* node)
+{
+	
 }
 
 void Model::ShutdownBuffers()
@@ -302,12 +359,10 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext, TextureShader* tex
 
 		MaterialType curMaterial = m_Materials[curEntry.MaterialIndex];
 		InputShaderClass inputShader;
-		inputShader.materialEmissive = curMaterial.materialEmissive;
 		inputShader.materialAmbient = curMaterial.materialAmbient;
 		inputShader.materialDiffuse = curMaterial.materialDiffuse;
 		inputShader.materialPower = curMaterial.materialPower;
 		inputShader.materialSpecular = curMaterial.materialSpecular;
-		inputShader.lightColor = *lightColor;
 		inputShader.lightDir = *lightDir;
 
 		if (m_Textures.find(curMaterial.texture) == m_Textures.end())

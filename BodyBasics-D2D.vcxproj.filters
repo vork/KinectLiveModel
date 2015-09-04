@@ -101,18 +101,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TexturePixelShader.hlsl">
-      <Filter>Landscape</Filter>
-    </None>
     <None Include="BodyVertexShader.hlsl">
       <Filter>Kinect</Filter>
     </None>
     <None Include="BodyPixelShader.hlsl">
       <Filter>Kinect</Filter>
     </None>
+    <None Include="TextureVertexShader.hlsl">
+      <Filter>Landscape</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="TextureVertexShader.hlsl">
+    <FxCompile Include="TexturePixelShader.hlsl">
       <Filter>Landscape</Filter>
     </FxCompile>
   </ItemGroup>
