@@ -19,6 +19,15 @@ Graphics::~Graphics()
 {
 }
 
+void Graphics::setPosition(float x, float y, float z)
+{
+	m_Camera->SetPosition(x, y, z);
+}
+
+void Graphics::setRotation(float x, float y, float z)
+{
+	m_Camera->SetRotation(x, y, z);
+}
 
 bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
@@ -47,8 +56,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Set the initial position of the camera.
-	m_Camera->SetPosition(-2.0f, 1.2f, -1.4f);
+	m_Camera->SetPosition(0.0f, 0.0f, 0.f);
 	m_Camera->SetRotation(0.f, 0.f, 0.f);
 
 	// Create the model object.
@@ -133,11 +141,11 @@ bool Graphics::Frame()
 	static float rotation = 0.0f;
 
 	// Update the rotation variable each frame.
-	rotation += (float)XM_PI * 0.001f;
+	/*rotation += (float)XM_PI * 0.001f;
 	if (rotation > 360.0f)
 	{
 		rotation -= 360.0f;
-	}
+	}*/
 
 	// Render the graphics scene.
 	result = Render(rotation);

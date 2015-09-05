@@ -9,6 +9,7 @@
 #include "TextureShader.h"
 #include <vector>
 #include <map>
+#include "ShaderStructures.h"
 
 using namespace DirectX;
 
@@ -34,25 +35,6 @@ public:
 	}
 
 private:
-	struct VertexType
-	{
-		XMFLOAT3 position;
-		XMFLOAT2 texture;
-		XMFLOAT3 normal;
-	};
-
-	struct MaterialType
-	{
-		XMFLOAT4 materialAmbient;
-		XMFLOAT4 materialDiffuse;
-		XMFLOAT4 materialSpecular;
-		float materialPower;
-
-		XMFLOAT3 dirLightDir;
-
-		string texture;
-	};
-
 	struct MeshEntry {
 		ID3D11Buffer *VB;
 		ID3D11Buffer *IB;
@@ -81,7 +63,6 @@ private:
 	void RenderBuffers(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, XMFLOAT3*, XMFLOAT3*);
 	void InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device*);
 	bool InitMaterials(const aiScene* pScene, const std::string& Filename, ID3D11Device*, ID3D11DeviceContext*);
-	void traverseMeshChilds(aiNode* node);
 	void calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box);
 
 	void ReleaseTexture();

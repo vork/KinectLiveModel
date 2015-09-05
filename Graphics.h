@@ -21,6 +21,9 @@ public:
 	void Shutdown();
 	bool Frame();
 
+	void setPosition(float, float, float);
+	void setRotation(float, float, float);
+
 private:
 	bool Render(float);
 

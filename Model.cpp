@@ -113,9 +113,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 		if (pMesh->mFaces[i].mNumIndices == 3) //only allow triangles
 		{
 			indexCount = indexCount + 3;
-		}
-
-		else
+		} else
 		{
 			printf("Error parsing Faces. Try to Re-Export model from 3d package!");
 			return;
@@ -164,7 +162,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 		Vertices[i].position = pos;
 		if (pMesh->GetNumUVChannels() > 0) {
 			XMFLOAT2 texcoord(pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y);
-			Vertices[i].texture = texcoord;//TODO CHECK THIS!
+			Vertices[i].texture = texcoord;
 		}
 		XMFLOAT3 normals(pMesh->mNormals[i].x, pMesh->mNormals[i].y, pMesh->mNormals[i].z);
 		Vertices[i].normal = normals;
@@ -178,7 +176,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 	}
 
 	// Set up the description of the static vertex buffer.
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	vertexBufferDesc.ByteWidth = sizeof(VertexType)* vertexCount;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
@@ -198,7 +196,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 	}
 
 	// Set up the description of the static index buffer.
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	indexBufferDesc.ByteWidth = sizeof(unsigned long)* indexCount;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
@@ -287,11 +285,17 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context
 	const aiMesh* pMesh = NULL;
 	const aiMaterial* pMat = NULL;
 
-	std::string filename = "Snow Biom C4D Small.dae"; //"World.dae";//"Snow Biom C4D Small.dae";
+	std::string filename = "World.dae"; //"Snow Biom C4D Small.dae"; //"World.dae";
 
 	//Possible flags:  aiProcess_TransformUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph 
-	pScene = Importer.ReadFile(filename.c_str(),  aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
+	pScene = Importer.ReadFile(filename.c_str(), 
+		//aiProcess_CalcTangentSpace |
+		aiProcess_Triangulate |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_ConvertToLeftHanded |
+		aiProcess_SortByPType |
+		aiProcess_PreTransformVertices
+	);
 	
 	if (!pScene)
 	{
@@ -307,11 +311,6 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context
 	}
 
 	return InitMaterials(pScene, filename, device, context);
-}
-
-void Model::traverseMeshChilds(aiNode* node)
-{
-	
 }
 
 void Model::ShutdownBuffers()

@@ -85,6 +85,9 @@
     <ClInclude Include="RigJoint.h">
       <Filter>Kinect</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderStructures.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />

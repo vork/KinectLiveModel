@@ -50,6 +50,9 @@ private:
 
 	Input* m_Input;
 	Graphics* m_Graphics;
+
+	XMFLOAT3 camPos;
+	XMFLOAT3 camRot;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

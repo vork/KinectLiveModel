@@ -19,7 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Body3DRenderer.cpp" />
+    <ClCompile Include="Body3DRenderer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="BodyBasics.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="D3Device.cpp" />
@@ -40,7 +42,9 @@
     <Image Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Body3DRenderer.h" />
+    <ClInclude Include="Body3DRenderer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="BodyBasics.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="D3Device.h" />
@@ -53,6 +57,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RigJoint.h" />
+    <ClInclude Include="ShaderStructures.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureShader.h" />

@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <directxmath.h>
 #include "Kinect.h"
+#include "ShaderStructures.h"
 
 class Body3DRenderer
 {
@@ -22,5 +23,12 @@ private:
 	void RenderBuffers();
 	void ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceContext*);
 	void DrawBone(ID3D11DeviceContext*, XMFLOAT3);
+
+	ID3D11InputLayout* m_inputLayout;
+	ID3D11Buffer* m_vertexBuffer;
+	ID3D11Buffer* m_indexBuffer;
+	ID3D11Buffer* m_constantBuffer;
+
+	UINT32 m_indexCount;
 
 };

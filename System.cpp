@@ -22,6 +22,8 @@ bool System::Initialize()
 	int screenWidth, screenHeight;
 	bool result;
 
+	camPos = XMFLOAT3(0.f, 0.f, 0.f);
+	camRot = XMFLOAT3(0.f, 0.f, 0.f);
 
 	// Initialize the width and height of the screen to zero before sending the variables into the function.
 	screenWidth = 0;
@@ -132,6 +134,76 @@ bool System::Frame()
 	{
 		return false;
 	}
+
+	float posSpeed = XM_PI * 0.001f;
+	float rotSpeed = XM_PI * 0.1f;
+	//Positional
+	if (m_Input->IsKeyDown(VK_UP)) //Move forward
+	{
+		camPos.z += posSpeed;
+	}
+
+	if (m_Input->IsKeyDown(VK_DOWN)) //Move backward
+	{
+		camPos.z -= posSpeed;
+	}
+
+
+	if (m_Input->IsKeyDown(VK_LEFT)) //Move left
+	{
+		camPos.x -= posSpeed;
+	}
+
+
+	if (m_Input->IsKeyDown(VK_RIGHT)) //Move right
+	{
+		camPos.x += posSpeed;
+	}
+
+	if (m_Input->IsKeyDown(VK_PRIOR)) //Move up
+	{
+		camPos.y += posSpeed;
+	}
+
+
+	if (m_Input->IsKeyDown(VK_NEXT)) //Move down
+	{
+		camPos.y -= posSpeed;
+	}
+
+	//Rotation
+	if (m_Input->IsKeyDown(0x57)) //W Rotate forwards
+	{
+		camRot.x += rotSpeed;
+	}
+
+	if (m_Input->IsKeyDown(0x53)) //S Rotate backwards
+	{
+		camRot.x -= rotSpeed;
+	}
+
+	if (m_Input->IsKeyDown(0x41)) //A Rotate left
+	{
+		camRot.y -= rotSpeed;
+	}
+
+	if (m_Input->IsKeyDown(0x44)) //D Rotate right
+	{
+		camRot.y += rotSpeed;
+	}
+
+	if (m_Input->IsKeyDown(0x51)) //Q Roll left
+	{
+		camRot.z += rotSpeed;
+	}
+
+	if (m_Input->IsKeyDown(0x45)) //E Roll right
+	{
+		camRot.z -= rotSpeed;
+	}
+
+	m_Graphics->setPosition(camPos.x, camPos.y, camPos.z);
+	m_Graphics->setRotation(camRot.x, camRot.y, camRot.z);
 
 	// Do the frame processing for the graphics object.
 	result = m_Graphics->Frame();
