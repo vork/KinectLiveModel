@@ -301,8 +301,8 @@ bool D3Device::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
-	rasterDesc.FrontCounterClockwise = true;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.FrontCounterClockwise = true; //CCW Culling
 	rasterDesc.DepthBias = false;
 	rasterDesc.DepthBiasClamp = 0;
 	rasterDesc.SlopeScaledDepthBias = 0;

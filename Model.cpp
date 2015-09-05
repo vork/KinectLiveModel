@@ -126,7 +126,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 	int vertexCount = pMesh->mNumVertices;
 
 	// Create the vertex array.
-	Vertices = new VertexType[vertexCount];
+	Vertices = new ShaderStructures::VertexType[vertexCount];
 	if (!Vertices)
 	{
 		return;
@@ -158,7 +158,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 
 	for (int i = 0; i < pMesh->mNumVertices; i++)
 	{
-		XMFLOAT3 pos(pMesh->mVertices[i].x / range * 5, pMesh->mVertices[i].y / range * 5, pMesh->mVertices[i].z / range * 5);
+		XMFLOAT3 pos(pMesh->mVertices[i].x /*/ range * 5*/, pMesh->mVertices[i].y  /*/ range * 5*/, pMesh->mVertices[i].z  /*/ range * 5*/);
 		Vertices[i].position = pos;
 		if (pMesh->GetNumUVChannels() > 0) {
 			XMFLOAT2 texcoord(pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y);
@@ -285,11 +285,10 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context
 	const aiMesh* pMesh = NULL;
 	const aiMaterial* pMat = NULL;
 
-	std::string filename = "World.dae"; //"Snow Biom C4D Small.dae"; //"World.dae";
+	std::string filename = "Snow Biom C4D Small.dae"; //"World.dae";
 
 	//Possible flags:  aiProcess_TransformUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph 
 	pScene = Importer.ReadFile(filename.c_str(), 
-		//aiProcess_CalcTangentSpace |
 		aiProcess_Triangulate |
 		aiProcess_SplitLargeMeshes |
 		aiProcess_ConvertToLeftHanded |

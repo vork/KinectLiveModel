@@ -32,7 +32,7 @@ bool KinectHelper::Initialize()
 	hr = GetDefaultKinectSensor(&m_pKinectSensor);
 	if (FAILED(hr))
 	{
-		return hr;
+		return false;
 	}
 
 	if (m_pKinectSensor)
@@ -66,7 +66,7 @@ bool KinectHelper::Initialize()
 		return false;
 	}
 
-	return hr;
+	return true;
 }
 
 void KinectHelper::Shutdown()

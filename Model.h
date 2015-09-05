@@ -12,6 +12,7 @@
 #include "ShaderStructures.h"
 
 using namespace DirectX;
+using namespace ShaderStructures;
 
 class Model
 {

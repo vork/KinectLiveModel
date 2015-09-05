@@ -42,8 +42,19 @@ bool System::Initialize()
 	// Initialize the input object.
 	m_Input->Initialize();
 
+	m_kinectHelper = new KinectHelper;
+	if (!m_kinectHelper)
+	{
+		return false;
+	}
+	result = m_kinectHelper->Initialize();
+	if (!result)
+	{
+		return false;
+	}
+
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
-	m_Graphics = new Graphics;
+	m_Graphics = new Graphics(m_kinectHelper);
 	if (!m_Graphics)
 	{
 		return false;
@@ -55,6 +66,7 @@ bool System::Initialize()
 	{
 		return false;
 	}
+
 
 	return true;
 }
@@ -135,7 +147,7 @@ bool System::Frame()
 		return false;
 	}
 
-	float posSpeed = XM_PI * 0.001f;
+	float posSpeed = XM_PI * 0.01f;
 	float rotSpeed = XM_PI * 0.1f;
 	//Positional
 	if (m_Input->IsKeyDown(VK_UP)) //Move forward

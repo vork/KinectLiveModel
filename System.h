@@ -8,6 +8,7 @@
 
 #include "Input.h"
 #include "Graphics.h"
+#include "Kinect.h"
 
 #ifdef _UNICODE
 #if defined _M_IX86
@@ -38,6 +39,12 @@ public:
 		return m_hwnd;
 	}
 
+
+	KinectHelper* GetKinectHelper() const
+	{
+		return m_kinectHelper;
+	}
+
 private:
 	bool Frame();
 	void InitializeWindows(int&, int&);
@@ -53,6 +60,7 @@ private:
 
 	XMFLOAT3 camPos;
 	XMFLOAT3 camRot;
+	KinectHelper* m_kinectHelper;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

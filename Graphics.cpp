@@ -1,18 +1,16 @@
 #include "Graphics.h"
 
 
-Graphics::Graphics()
+Graphics::Graphics(const KinectHelper* kinect)
 {
 	m_device = 0;
 	m_Camera = 0;
 	m_Model = 0;
 	m_TextureShader = 0;
+	m_KinectHelper = kinect;
 }
 
 
-Graphics::Graphics(const Graphics& other)
-{
-}
 
 
 Graphics::~Graphics()
@@ -73,6 +71,12 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	m_BodyRenderer = new Body3DRenderer();
+	if (!m_BodyRenderer)
+	{
+		return false;
+	}
+
 	// Initialize the model object.
 	result = m_Model->Initialize(m_device->GetDevice(), m_device->GetDeviceContext());
 	if (!result)
@@ -89,8 +93,16 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	light.dir = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	light.pos = XMFLOAT3(0.f, 0.f, 0.f);
+	// Initialize the body renderer object.
+	result = m_BodyRenderer->Initialize(m_device->GetDevice(), m_device->GetDeviceContext(), m_KinectHelper);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the body renderer object.", L"Error", MB_OK);
+		return false;
+	}
+
+	light.dir = XMFLOAT3(2.5f, 0.0f, 2.5f);
+	light.pos = XMFLOAT3(2.5f, 5.0f, 2.5f);
 	light.color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	return true;
@@ -113,6 +125,14 @@ void Graphics::Shutdown()
 		m_Model->Shutdown();
 		delete m_Model;
 		m_Model = 0;
+	}
+
+	// Release the body object.
+	if (m_BodyRenderer)
+	{
+		m_BodyRenderer->Shutdown();
+		delete m_BodyRenderer;
+		m_BodyRenderer = 0;
 	}
 
 	// Release the camera object.
@@ -178,6 +198,9 @@ bool Graphics::Render(float rotation)
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_device->GetDeviceContext(), m_TextureShader, &updatedWorld, &viewMatrix, &projectionMatrix, &light.color, &light.dir);
+
+	// Put the body vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	m_BodyRenderer->Render(m_device->GetDeviceContext(), m_TextureShader, &updatedWorld, &viewMatrix, &projectionMatrix, &light.color, &light.dir);
 
 	// Present the rendered scene to the screen.
 	m_device->EndScene();
