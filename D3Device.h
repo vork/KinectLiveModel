@@ -34,6 +34,12 @@ public:
 
 	void GetVideoCardInfo(char*, int&);
 
+	void SetBackBufferRenderTarget();
+	void ResetViewport();
+
+	void TurnZBufferOn();
+	void TurnZBufferOff();
+
 	HRESULT CompileShader(_In_ LPCWSTR, _In_ LPCSTR, _In_ LPCSTR, _Outptr_ ID3DBlob**);
 
 private:
@@ -51,4 +57,6 @@ private:
 	DirectX::XMMATRIX m_projectionMatrix;
 	DirectX::XMMATRIX m_worldMatrix;
 	DirectX::XMMATRIX m_orthoMatrix;
+	D3D11_VIEWPORT m_viewport;
+	ID3D11DepthStencilState* m_depthDisabledStencilState;
 };

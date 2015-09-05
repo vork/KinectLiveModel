@@ -32,14 +32,26 @@
     <ClCompile Include="System.cpp">
       <Filter>Helper</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Landscape</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureShader.cpp">
-      <Filter>Landscape</Filter>
-    </ClCompile>
     <ClCompile Include="RigJoint.cpp">
       <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="HorizontalBlurShader.cpp">
+      <Filter>PostFx</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp">
+      <Filter>PostFx</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalBlurShader.cpp">
+      <Filter>PostFx</Filter>
+    </ClCompile>
+    <ClCompile Include="OrthoWindow.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureShader.cpp">
+      <Filter>Helper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,16 +88,28 @@
     <ClInclude Include="System.h">
       <Filter>Helper</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Landscape</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureShader.h">
-      <Filter>Landscape</Filter>
-    </ClInclude>
     <ClInclude Include="RigJoint.h">
       <Filter>Kinect</Filter>
     </ClInclude>
     <ClInclude Include="ShaderStructures.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="HorizontalBlurShader.h">
+      <Filter>PostFx</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
+      <Filter>PostFx</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalBlurShader.h">
+      <Filter>PostFx</Filter>
+    </ClInclude>
+    <ClInclude Include="OrthoWindow.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureShader.h">
       <Filter>Helper</Filter>
     </ClInclude>
   </ItemGroup>
@@ -102,6 +126,9 @@
     <Filter Include="Helper">
       <UniqueIdentifier>{aaa003d1-d1ee-4dc6-a2cf-c81419fe4d78}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PostFx">
+      <UniqueIdentifier>{27153ccf-d0f6-42d7-b91d-4d20367b2b15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="BodyVertexShader.hlsl">
@@ -111,12 +138,24 @@
       <Filter>Kinect</Filter>
     </None>
     <None Include="TextureVertexShader.hlsl">
-      <Filter>Landscape</Filter>
+      <Filter>Helper</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="HorizontalBlurPs.hlsl">
+      <Filter>PostFx</Filter>
+    </FxCompile>
+    <FxCompile Include="HorizontalBlurVs.hlsl">
+      <Filter>PostFx</Filter>
+    </FxCompile>
+    <FxCompile Include="VerticalBlurShaderPs.hlsl">
+      <Filter>PostFx</Filter>
+    </FxCompile>
+    <FxCompile Include="VerticalBlurShaderVs.hlsl">
+      <Filter>PostFx</Filter>
+    </FxCompile>
     <FxCompile Include="TexturePixelShader.hlsl">
-      <Filter>Landscape</Filter>
+      <Filter>Helper</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -6,6 +6,10 @@
 #include "TextureShader.h"
 #include "Body3DRenderer.h"
 #include "Kinect.h"
+#include "HorizontalBlurShader.h"
+#include "VerticalBlurShader.h"
+#include "RenderTexture.h"
+#include "OrthoWindow.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -28,6 +32,13 @@ public:
 private:
 	bool Render(float);
 
+	bool RenderSceneToTexture(float);
+	bool DownSampleTexture();
+	bool RenderHorizontalBlurToTexture();
+	bool RenderVerticalBlurToTexture();
+	bool UpSampleTexture();
+	bool Render2DTextureScene();
+
 	D3Device* m_device;
 
 	struct Light
@@ -48,4 +59,11 @@ private:
 	Body3DRenderer* m_BodyRenderer;
 	const KinectHelper* m_KinectHelper;
 	TextureShader* m_TextureShader;
+
+	HorizontalBlurShader* m_HorizontalBlurShader;
+	VerticalBlurShader* m_VerticalBlurShader;
+
+	RenderTexture *m_RenderTexture, *m_DownSampleTexure, *m_HorizontalBlurTexture, *m_VerticalBlurTexture, *m_UpSampleTexure;
+
+	OrthoWindow *m_SmallWindow, *m_FullScreenWindow;
 };
