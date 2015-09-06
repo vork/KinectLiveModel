@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include <string>
+#include "resource.h"
 
 
 Texture::Texture()
@@ -7,12 +8,6 @@ Texture::Texture()
 	m_texture = 0;
 	m_textureView = 0;
 }
-
-
-Texture::Texture(const Texture& other)
-{
-}
-
 
 Texture::~Texture()
 {
@@ -30,14 +25,13 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	D3D11_SHADER_RESOURCE_VIEW_DESC srDesc;
 
 
-	// Load the targa texture data into memory.
+	// Load the png
 	result = LoadPng(filename, height, width);
 	if (!result)
 	{
 		return false;
 	}
 
-	// Setup the description of the texture.
 	textureDesc.Height = height;
 	textureDesc.Width = width;
 	textureDesc.MipLevels = 1;
@@ -50,35 +44,32 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	textureDesc.MiscFlags = 0;
 
-	// Create the empty texture.
+	// Create a empty texture
 	hResult = device->CreateTexture2D(&textureDesc, NULL, &m_texture);
 	if (FAILED(hResult))
 	{
 		return false;
 	}
 
-	// Lock the texture so it can be written to by the CPU.
+	// Lock the texture -> The cpu can now write it
 	hResult = deviceContext->Map(m_texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(hResult))
 	{
 		return false;
 	}
 
-	// Get a pointer to the mapped resource data pointer and cast it into an unsigned char to match the targa data.
 	dataPtr = (unsigned char*)mappedResource.pData;
 
-	// Load the targa data into the texture now.
+	// Load the png data into the texture
 	for (j = 0; j<(unsigned int)height; j++)
 	{
 		png_bytep row = row_pointers[j];
-		// Set the beginning of the row.
 		rowStart = j * mappedResource.RowPitch;
 
 		for (i = 0; i<(unsigned int)width; i++)
 		{
 			png_byte* px = &(row[i * 4]);
 
-			// Set the beginning of the column.
 			columnStart = i * 4;
 
 			printf("R: %i G: %i B: %i A: %i", px[0], px[1], px[2], px[3]);
@@ -91,7 +82,6 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 			test += " A: "; 
 			test += std::to_string(px[3]);
 
-			// Copy the data in.
 			dataPtr[rowStart + columnStart + 0] = px[0]; // Red.
 			dataPtr[rowStart + columnStart + 1] = px[1]; // Green.
 			dataPtr[rowStart + columnStart + 2] = px[2]; // Blue
@@ -99,10 +89,10 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 		}
 	}
 
-	// Unlock the texture.
+	// Unlock the texture
 	deviceContext->Unmap(m_texture, 0);
 
-	// Release the targa image data now that it has been loaded into the texture.
+	// Cleanup
 	delete[] row_pointers;
 	row_pointers = 0;
 
@@ -112,7 +102,7 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	// Create the shader resource view for the texture.
+	// Create the shader resource view for the texture
 	hResult = device->CreateShaderResourceView(m_texture, &srDesc, &m_textureView);
 	if (FAILED(hResult))
 	{
@@ -122,23 +112,12 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	return true;
 }
 
-void Texture::Shutdown()
+void Texture::Release()
 {
-	// Release the texture view resource.
-	if (m_textureView)
-	{
-		m_textureView->Release();
-		m_textureView = 0;
-	}
+	SafeRelease(m_textureView);
+	SafeRelease(m_texture);
 
-	// Release the texture.
-	if (m_texture)
-	{
-		m_texture->Release();
-		m_texture = 0;
-	}
-
-	// Release the targa image data.
+	// Release the png data
 	if (row_pointers)
 	{
 		delete[] row_pointers;

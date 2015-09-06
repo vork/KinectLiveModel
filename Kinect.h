@@ -3,7 +3,7 @@
 #include <Kinect.h>
 #include "RigJoint.h"
 
-#define MULT 5
+#define MULT 1
 
 #define ORANGE XMFLOAT3(1.0f, 0.596f, 0.0f)
 #define GREEN XMFLOAT3(0.298f, 0.686f, 0.314f)

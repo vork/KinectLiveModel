@@ -9,7 +9,6 @@ class OrthoWindow
 {
 public:
 	OrthoWindow();
-	OrthoWindow(const OrthoWindow&);
 	~OrthoWindow();
 
 	bool Initialize(ID3D11Device*, int, int);

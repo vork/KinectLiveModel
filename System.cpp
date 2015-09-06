@@ -6,12 +6,6 @@ System::System()
 	m_Graphics = 0;
 }
 
-
-System::System(const System& other)
-{
-}
-
-
 System::~System()
 {
 }

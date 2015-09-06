@@ -23,11 +23,11 @@ public:
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*);
 	void Release();
-	void Render(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, XMFLOAT3*, XMFLOAT3*);
+	void Render(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, LightType* light, CameraType* camera);
 
 	int GetIndexCount(int);
 
-	ID3D11ShaderResourceView* GetTexture(int index);
+	ID3D11ShaderResourceView* GetTexture();
 
 
 	int mat_count() const
@@ -55,13 +55,13 @@ private:
 
 	std::vector<MaterialType> m_Materials;
 	std::vector<MeshEntry> m_Entries;
-	map<string, Texture> m_Textures;
+	Texture m_Texture;
 
 	int mat_Count;
 
 	bool InitializeBuffers(ID3D11Device*, ID3D11DeviceContext*);
 	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, XMFLOAT3*, XMFLOAT3*);
+	void RenderBuffers(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, LightType* light, CameraType* camera);
 	void InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device*);
 	bool InitMaterials(const aiScene* pScene, const std::string& Filename, ID3D11Device*, ID3D11DeviceContext*);
 	void calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box);

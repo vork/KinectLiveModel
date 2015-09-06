@@ -251,7 +251,9 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	light.dir = XMFLOAT3(2.5f, 0.0f, 2.5f);
 	light.pos = XMFLOAT3(2.5f, 5.0f, 2.5f);
-	light.color = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	light.diffcolor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	light.speccolor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	light.lightDistanceSquared = 4;
 
 	return true;
 }
@@ -365,11 +367,18 @@ bool Graphics::RenderSceneToTexture(float rotation)
 	m_device->GetWorldMatrix(worldMatrix);
 	m_device->GetProjectionMatrix(projectionMatrix);
 
+	cameraType.cameraPosition = m_Camera->GetPosition();
+
+	lightType.LightSpecularColor = light.speccolor;
+	lightType.LightDiffuseColor = light.diffcolor;
+	lightType.LightDistanceSquared = light.lightDistanceSquared;
+	lightType.LightPosition = light.pos;
+
 	// render the mode
-	m_Model->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &light.color, &light.dir);
+	m_Model->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &lightType, &cameraType);
 
 	// render the body
-	m_BodyRenderer->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &light.color, &light.dir);
+	m_BodyRenderer->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &cameraType, &lightType);
 
 	//TODO no separate renders
 
@@ -403,7 +412,7 @@ bool Graphics::DownSampleTexture()
 	//Render the texture
 	m_SmallWindow->Render(m_device->GetDeviceContext());
 	result = m_TextureShader->Render(m_device->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_RenderTexture->GetShaderResourceView(), NULL);
+		m_RenderTexture->GetShaderResourceView(), NULL, NULL, NULL);
 	if (!result)
 	{
 		return false;
@@ -518,7 +527,7 @@ bool Graphics::UpSampleTexture()
 	//Render the texture
 	m_FullScreenWindow->Render(m_device->GetDeviceContext());
 	result = m_TextureShader->Render(m_device->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_VerticalBlurTexture->GetShaderResourceView(), NULL);
+		m_VerticalBlurTexture->GetShaderResourceView(), NULL, NULL, NULL);
 	if (!result)
 	{
 		return false;
@@ -553,7 +562,7 @@ bool Graphics::Render2DTextureScene()
 	//Render the texture
 	m_FullScreenWindow->Render(m_device->GetDeviceContext());
 	result = m_TextureShader->Render(m_device->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_UpSampleTexure->GetShaderResourceView(), NULL);
+		m_UpSampleTexure->GetShaderResourceView(), NULL, NULL, NULL);
 	if (!result)
 	{
 		return false;

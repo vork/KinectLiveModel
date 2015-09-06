@@ -16,7 +16,6 @@ class D3Device
 {
 public:
 	D3Device();
-	D3Device(const D3Device&);
 	~D3Device();
 
 	bool Initialize(int, int, bool, HWND, bool, float, float);

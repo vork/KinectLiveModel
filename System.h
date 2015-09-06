@@ -24,7 +24,6 @@ class System
 {
 public:
 	System();
-	System(const System&);
 	~System();
 
 	bool Initialize();

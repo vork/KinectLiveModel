@@ -8,11 +8,10 @@ class Texture
 {
 public:
 	Texture();
-	Texture(const Texture&);
 	~Texture();
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
-	void Shutdown();
+	void Release();
 
 	ID3D11ShaderResourceView* GetTexture();
 

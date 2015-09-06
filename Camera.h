@@ -9,7 +9,6 @@ class Camera
 {
 public:
 	Camera();
-	Camera(const Camera&);
 	~Camera();
 
 	void* operator new(std::size_t);

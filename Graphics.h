@@ -11,6 +11,7 @@
 #include "RenderTexture.h"
 #include "OrthoWindow.h"
 #include "resource.h"
+#include "ShaderStructures.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -50,7 +51,9 @@ private:
 		}
 		XMFLOAT3 dir;
 		XMFLOAT3 pos;
-		XMFLOAT3 color;
+		XMFLOAT3 diffcolor;
+		XMFLOAT3 speccolor;
+		float lightDistanceSquared;
 	};
 
 	Light light;
@@ -60,6 +63,9 @@ private:
 	Body3DRenderer* m_BodyRenderer;
 	const KinectHelper* m_KinectHelper;
 	TextureShader* m_TextureShader;
+
+	LightType lightType;
+	CameraType cameraType;
 
 	HorizontalBlurShader* m_HorizontalBlurShader;
 	VerticalBlurShader* m_VerticalBlurShader;

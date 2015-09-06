@@ -147,7 +147,7 @@ void Body3DRenderer::Release()
 	
 }
 
-void Body3DRenderer::DrawBone(ID3D11DeviceContext* context, TextureShader* texShader, XMFLOAT3 color, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
+void Body3DRenderer::DrawBone(ID3D11DeviceContext* context, TextureShader* texShader, XMFLOAT3 color, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, CameraType* camera, LightType* light)
 {
 	unsigned int stride;
 	unsigned int offset;
@@ -168,20 +168,20 @@ void Body3DRenderer::DrawBone(ID3D11DeviceContext* context, TextureShader* texSh
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	InputShaderClass inputShader;
-	inputShader.materialAmbient = XMFLOAT4(color.x, color.y, color.z, 1.f);
-	inputShader.materialDiffuse = XMFLOAT4(color.x, color.y, color.z, 1.f);
-	inputShader.materialPower = 0.f;
-	inputShader.materialSpecular = XMFLOAT4(color.x, color.y, color.z, 1.f);
-	inputShader.lightDir = *lightDir;
+	MaterialType materialType;
+	materialType.materialAmbient = XMFLOAT4(color.x, color.y, color.z, 1.f);
+	materialType.materialDiffuse = XMFLOAT4(color.x, color.y, color.z, 1.f);
+	materialType.materialPower = 0.f;
+	materialType.materialSpecular = XMFLOAT4(color.x, color.y, color.z, 1.f);
+	materialType.materialEmissive = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
-	bool result = texShader->Render(context, m_indexCount, *world, *view, *projection, NULL, &inputShader);
+	bool result = texShader->Render(context, m_indexCount, *world, *view, *projection, NULL, &materialType, camera, light);
 	if (!result)
 	{
 	}
 }
 
-void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
+void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, CameraType* camera, LightType* light)
 {
 	if (!m_pKinectHelper->m_p_body_frame_reader())
 	{
@@ -207,7 +207,7 @@ void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* t
 
 		if (SUCCEEDED(hr))
 		{
-			ProcessBody(BODY_COUNT, ppBodies, deviceContext, texShader, world, view, projection, lightColor, lightDir);
+			ProcessBody(BODY_COUNT, ppBodies, deviceContext, texShader, world, view, projection, camera, light);
 		}
 
 		for (int i = 0; i < _countof(ppBodies); ++i)
@@ -220,7 +220,7 @@ void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* t
 	SafeRelease(pBodyFrame);
 }
 
-void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceContext* context, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
+void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceContext* context, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, CameraType* camera, LightType* light)
 {
 	HRESULT hr;
 	if (m_pKinectHelper->m_p_coordinate_mapper()) //Safety first !
@@ -241,7 +241,7 @@ void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceC
 
 					KinectHelper::TraverseBoneHierarchy(m_BoneHierarchy,
 						[&pBody, &res, this, &transformed, boneLen, &context, &texShader,
-						&world, &view, &projection, &lightColor, &lightDir](shared_ptr<RigJoint>& t)
+						&world, &view, &projection, &camera, &light](shared_ptr<RigJoint>& t)
 					{
 						JointOrientation joint_orientation[JointType_Count];
 						pBody->GetJointOrientations(JointType_Count, joint_orientation);
@@ -311,7 +311,7 @@ void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceC
 						if (parent != nullptr)
 						{
 							// TODO draw the bone
-							DrawBone(context, texShader, t->getColour(), world, view, projection, lightColor, lightDir);
+							DrawBone(context, texShader, t->getColour(), world, view, projection, camera, light);
 							//ID3D11DeviceContext* context, TextureShader* texShader, XMFLOAT3 color, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir
 						}
 					});

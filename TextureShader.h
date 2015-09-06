@@ -5,52 +5,22 @@
 #include <directxmath.h>
 #include <fstream>
 #include "Camera.h"
+#include "ShaderStructures.h"
 
 using namespace DirectX;
 using namespace std;
-
-struct InputShaderClass
-{
-	XMFLOAT3 lightDir;
-	XMFLOAT4 materialAmbient;
-	XMFLOAT4 materialDiffuse;
-	XMFLOAT4 materialSpecular;
-	float materialPower;
-};
 
 class TextureShader
 {
 public:
 	TextureShader(Camera*);
-	TextureShader(const TextureShader&);
 	~TextureShader();
 
 	bool Initialize(ID3D11Device*, HWND);
 	void Release();
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX&, XMMATRIX&, XMMATRIX&, ID3D11ShaderResourceView*, InputShaderClass*);
+	bool Render(ID3D11DeviceContext*, int, XMMATRIX&, XMMATRIX&, XMMATRIX&, ID3D11ShaderResourceView*, ShaderStructures::MaterialType*, ShaderStructures::CameraType*, ShaderStructures::LightType*);
 
 private:
-	struct MatrixBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
-	struct CameraBufferType
-	{
-		XMFLOAT3 cameraPosition;
-		float padding;
-	};
-
-	struct MaterialBufferType {
-		XMFLOAT4 materialAmbient;
-		XMFLOAT4 materialDiffuse;
-		XMFLOAT4 materialSpecular;
-		float materialPower;
-		XMFLOAT3 dirLightDir;
-	};
-
 	Camera* m_pCameraClass;
 
 	ID3D11VertexShader* m_vertexShader;
@@ -59,6 +29,7 @@ private:
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11Buffer* m_cameraBuffer;
 	ID3D11Buffer* m_materialBuffer;
+	ID3D11Buffer* m_lightBuffer;
 
 	ID3D11SamplerState* m_sampleState;
 
@@ -66,7 +37,7 @@ private:
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX&, XMMATRIX&, XMMATRIX&, ID3D11ShaderResourceView*, InputShaderClass*);
+	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX&, XMMATRIX&, XMMATRIX&, ID3D11ShaderResourceView*, ShaderStructures::MaterialType*, ShaderStructures::CameraType*, ShaderStructures::LightType*);
 	void RenderShader(ID3D11DeviceContext*, int);
 };
 

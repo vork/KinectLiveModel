@@ -19,10 +19,27 @@ namespace ShaderStructures {
 		XMFLOAT4 materialAmbient;
 		XMFLOAT4 materialDiffuse;
 		XMFLOAT4 materialSpecular;
+		XMFLOAT4 materialEmissive;
 		float materialPower;
+	};
 
-		XMFLOAT3 dirLightDir;
+	struct MatrixType
+	{
+		XMMATRIX world;
+		XMMATRIX view;
+		XMMATRIX projection;
+	};
 
-		std::string texture;
+	struct CameraType
+	{
+		XMFLOAT3 cameraPosition;
+	};
+
+	struct LightType
+	{
+		XMFLOAT3 LightPosition;
+		XMFLOAT3 LightDiffuseColor;
+		XMFLOAT3 LightSpecularColor;
+		float LightDistanceSquared;
 	};
 }

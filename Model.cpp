@@ -40,10 +40,10 @@ void Landscape3DRenderer::Release()
 	return;
 }
 
-void Landscape3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
+void Landscape3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, LightType* light, CameraType* camera)
 {
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	RenderBuffers(deviceContext, texShader, world, view, projection, lightColor, lightDir);
+	RenderBuffers(deviceContext, texShader, world, view, projection, light, camera);
 
 	return;
 }
@@ -53,13 +53,9 @@ int Landscape3DRenderer::GetIndexCount(int index)
 	return m_Entries[index].NumIndices;
 }
 
-ID3D11ShaderResourceView* Landscape3DRenderer::GetTexture(int index)
+ID3D11ShaderResourceView* Landscape3DRenderer::GetTexture()
 {
-	if (m_Textures.find(m_Materials[index].texture) == m_Textures.end())
-	{
-		printf("Error finding texture '%p'\n", m_Materials[index].texture.c_str());
-	}
-	return m_Textures[m_Materials[index].texture].GetTexture();
+	return m_Texture.GetTexture();
 }
 
 void Landscape3DRenderer::calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box)
@@ -247,6 +243,11 @@ bool Landscape3DRenderer::InitMaterials(const aiScene* pScene, const std::string
 		pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specular);
 		m_Materials[i].materialSpecular = XMFLOAT4(specular.r, specular.g, specular.b, 1.f);
 
+		aiColor3D emissive(1.f, 1.f, 1.f);
+		//aiColor3D emissive(0.f, 0.f, 0.f);
+		pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, emissive);
+		m_Materials[i].materialEmissive = XMFLOAT4(emissive.r, emissive.g, emissive.b, 1.f);
+
 		float shininess = 0.f;
 		pMaterial->Get(AI_MATKEY_SHININESS, shininess);
 		m_Materials[i].materialPower = shininess;
@@ -256,21 +257,12 @@ bool Landscape3DRenderer::InitMaterials(const aiScene* pScene, const std::string
 
 			if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &Path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
 				char* path = Path.data;
-
-				if (m_Textures.find(path) == m_Textures.end())
+				if (!m_Texture.Initialize(device, context, path))
 				{
-					//not found
-					m_Textures[path] = Texture();
-					if (!m_Textures[path].Initialize(device, context, path))
-					{
-						printf("Error loading texture '%s'\n", Path.data);
-						m_Textures[path].Shutdown();
-						m_Textures.erase(path);
-						return false;
-					}
+					printf("Error loading texture '%s'\n", Path.data);
+					m_Texture.Release();
+					return false;
 				}
-
-				m_Materials[i].texture = path;
 			}
 		}
 	}
@@ -326,7 +318,7 @@ void Landscape3DRenderer::ShutdownBuffers()
 	m_Entries.clear();
 }
 
-void Landscape3DRenderer::RenderBuffers(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
+void Landscape3DRenderer::RenderBuffers(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, LightType* light, CameraType* camera)
 {
 	unsigned int stride;
 	unsigned int offset;
@@ -356,21 +348,9 @@ void Landscape3DRenderer::RenderBuffers(ID3D11DeviceContext* deviceContext, Text
 		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		MaterialType curMaterial = m_Materials[curEntry.MaterialIndex];
-		InputShaderClass inputShader;
-		inputShader.materialAmbient = curMaterial.materialAmbient;
-		inputShader.materialDiffuse = curMaterial.materialDiffuse;
-		inputShader.materialPower = curMaterial.materialPower;
-		inputShader.materialSpecular = curMaterial.materialSpecular;
-		inputShader.lightDir = *lightDir;
 
-		if (m_Textures.find(curMaterial.texture) == m_Textures.end())
-		{
-			printf("Error loading texture '%s'\n", curMaterial.texture.c_str());
-			return;
-		}
-
-		ID3D11ShaderResourceView* texture = m_Textures[curMaterial.texture].GetTexture();
-		bool result = texShader->Render(deviceContext, curEntry.NumIndices, *world, *view, *projection, texture, &inputShader);
+		ID3D11ShaderResourceView* texture = m_Texture.GetTexture();
+		bool result = texShader->Render(deviceContext, curEntry.NumIndices, *world, *view, *projection, texture, &curMaterial, camera, light);
 		if (!result)
 		{
 			return;
@@ -380,11 +360,5 @@ void Landscape3DRenderer::RenderBuffers(ID3D11DeviceContext* deviceContext, Text
 
 void Landscape3DRenderer::ReleaseTexture()
 {
-	std::map<string, Texture>::iterator it;
-	for (it = m_Textures.begin(); it != m_Textures.end(); ++it)
-	{
-		it->second.Shutdown();
-	}
-
-	m_Textures.clear();
+	m_Texture.Release();
 }

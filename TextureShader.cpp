@@ -1,5 +1,5 @@
 #include "TextureShader.h"
-
+#include "resource.h"
 
 TextureShader::TextureShader(Camera* camcl)
 {
@@ -10,14 +10,9 @@ TextureShader::TextureShader(Camera* camcl)
 	m_sampleState = 0;
 	m_materialBuffer = 0;
 	m_cameraBuffer = 0;
+	m_lightBuffer = 0;
 	m_pCameraClass = camcl;
 }
-
-
-TextureShader::TextureShader(const TextureShader& other)
-{
-}
-
 
 TextureShader::~TextureShader()
 {
@@ -47,13 +42,13 @@ void TextureShader::Release()
 }
 
 bool TextureShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix,
-	XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, InputShaderClass* input)
+                           XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ShaderStructures::MaterialType* materialBuffer, ShaderStructures::CameraType* cameraBuffer, ShaderStructures::LightType* lightBuffer)
 {
 	bool result;
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, input);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, materialBuffer, cameraBuffer, lightBuffer);
 	if (!result)
 	{
 		return false;
@@ -76,6 +71,7 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC cameraBufferDesc;
 	D3D11_BUFFER_DESC materialBufferDesc;
+	D3D11_BUFFER_DESC lightBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 
 
@@ -86,7 +82,7 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
 	// Compile the vertex shader code.
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "TextureVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&vertexShaderBuffer, &errorMessage);
+	                            &vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		// If the shader failed to compile it should have writen something to the error message.
@@ -105,7 +101,7 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
 	// Compile the pixel shader code.
 	result = D3DCompileFromFile(psFilename, NULL, NULL, "TexturePixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&pixelShaderBuffer, &errorMessage);
+	                            &pixelShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
 		// If the shader failed to compile it should have writen something to the error message.
@@ -167,7 +163,7 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
 	// Create the vertex input layout.
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
-		vertexShaderBuffer->GetBufferSize(), &m_layout);
+	                                   vertexShaderBuffer->GetBufferSize(), &m_layout);
 	if (FAILED(result))
 	{
 		return false;
@@ -182,7 +178,7 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	matrixBufferDesc.ByteWidth = sizeof(ShaderStructures::MatrixType);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
@@ -197,7 +193,7 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
 	// Setup the description of the camera dynamic constant buffer that is in the vertex shader.
 	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
+	cameraBufferDesc.ByteWidth = sizeof(ShaderStructures::CameraType);
 	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cameraBufferDesc.MiscFlags = 0;
@@ -205,6 +201,21 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
 	// Create the camera constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	result = device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Setup the description of the light dynamic constant buffer that is in the vertex shader.
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(ShaderStructures::LightType);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+
+	// Create the light constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
 	if (FAILED(result))
 	{
 		return false;
@@ -233,7 +244,7 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 	}
 
 	materialBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	materialBufferDesc.ByteWidth = sizeof(MaterialBufferType);
+	materialBufferDesc.ByteWidth = sizeof(ShaderStructures::MaterialType);
 	materialBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	materialBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	materialBufferDesc.MiscFlags = 0;
@@ -250,48 +261,12 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
 void TextureShader::ShutdownShader()
 {
-	// Release the sampler state.
-	if (m_sampleState)
-	{
-		m_sampleState->Release();
-		m_sampleState = 0;
-	}
-
-	// Release the matrix constant buffer.
-	if (m_matrixBuffer)
-	{
-		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
-	}
-
-	// Release the camera constant buffer.
-	if (m_cameraBuffer)
-	{
-		m_cameraBuffer->Release();
-		m_cameraBuffer = 0;
-	}
-
-
-	// Release the layout.
-	if (m_layout)
-	{
-		m_layout->Release();
-		m_layout = 0;
-	}
-
-	// Release the pixel shader.
-	if (m_pixelShader)
-	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
-	}
-
-	// Release the vertex shader.
-	if (m_vertexShader)
-	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
-	}
+	SafeRelease(m_sampleState);
+	SafeRelease(m_matrixBuffer);
+	SafeRelease(m_cameraBuffer);
+	SafeRelease(m_layout);
+	SafeRelease(m_pixelShader);
+	SafeRelease(m_vertexShader);
 
 	return;
 }
@@ -313,7 +288,7 @@ void TextureShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 	fout.open("shader-error.txt");
 
 	// Write out the error message.
-	for (i = 0; i<bufferSize; i++)
+	for (i = 0; i < bufferSize; i++)
 	{
 		fout << compileErrors[i];
 	}
@@ -332,13 +307,14 @@ void TextureShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 }
 
 bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix,
-	XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, InputShaderClass* input)
+                                        XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ShaderStructures::MaterialType* materialBuffer, ShaderStructures::CameraType* cameraBuffer, ShaderStructures::LightType* lightBuffer)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBufferType* dataPtr;
-	MaterialBufferType* matDataPtr;
-	CameraBufferType* camDataPtr;
+	ShaderStructures::MatrixType* dataPtr;
+	ShaderStructures::MaterialType* matDataPtr;
+	ShaderStructures::CameraType* camDataPtr;
+	ShaderStructures::LightType* lightDataPtr;;
 	unsigned int bufferNumber;
 
 	// Transpose the matrices to prepare them for the shader.
@@ -354,7 +330,7 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 	}
 
 	// Get a pointer to the data in the constant buffer.
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
+	dataPtr = (ShaderStructures::MatrixType*)mappedResource.pData;
 
 	// Copy the matrices into the constant buffer.
 	dataPtr->world = worldMatrix;
@@ -370,37 +346,21 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 	// Finanly set the constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-	// Lock the camera constant buffer so it can be written to.
-	result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
+
+	/////////////////////////////////////////////////////
+	// Setup PixelShader
+	/////////////////////////////////////////////////////
+	if (texture)
 	{
-		return false;
-	}
-
-	if (input) {
-		// Get a pointer to the data in the constant buffer.
-		camDataPtr = (CameraBufferType*)mappedResource.pData;
-
-		// Copy the camera position into the constant buffer.
-		camDataPtr->cameraPosition = m_pCameraClass->GetPosition();
-		camDataPtr->padding = 0.0f;
-
-		// Unlock the camera constant buffer.
-		deviceContext->Unmap(m_cameraBuffer, 0);
-
-		// Set the position of the camera constant buffer in the vertex shader.
-		bufferNumber = 1;
-
-		// Now set the camera constant buffer in the vertex shader with the updated values.
-		deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
-
-		/////////////////////////////////////////////////////
-		// Setup PixelShader
-		/////////////////////////////////////////////////////
-
 		// Set shader texture resource in the pixel shader.
 		deviceContext->PSSetShaderResources(0, 1, &texture);
+	}
 
+	/////////////////////////////////////////////
+	// MATERIAL BUFFER
+	/////////////////////////////////////////////
+	if (materialBuffer)
+	{
 		// Lock the material constant buffer so it can be written to.
 		result = deviceContext->Map(m_materialBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
@@ -408,24 +368,77 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 			return false;
 		}
 
-		// Get a pointer to the data in the constant buffer.
-		matDataPtr = (MaterialBufferType*)mappedResource.pData;
+		matDataPtr = (ShaderStructures::MaterialType*)mappedResource.pData;
 
 		// Copy the material variables into the constant buffer.
-		matDataPtr->materialAmbient = input->materialAmbient;
-		matDataPtr->materialDiffuse = input->materialDiffuse;
-		matDataPtr->materialPower = input->materialPower;
-		matDataPtr->materialSpecular = input->materialSpecular;
-		matDataPtr->dirLightDir = input->lightDir;
+		matDataPtr->materialAmbient = materialBuffer->materialAmbient;
+		matDataPtr->materialDiffuse = materialBuffer->materialDiffuse;
+		matDataPtr->materialEmissive = materialBuffer->materialEmissive;
+		matDataPtr->materialPower = materialBuffer->materialPower;
+		matDataPtr->materialSpecular = materialBuffer->materialSpecular;
 
 		// Unlock the constant buffer.
 		deviceContext->Unmap(m_materialBuffer, 0);
 
-		// Set the position of the material constant buffer in the pixel shader.
 		bufferNumber = 0;
 
-		// Finally set the material constant buffer in the pixel shader with the updated values.
+		// Finanly set the constant buffer in the pixel shader with the updated values.
 		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_materialBuffer);
+	}
+
+	if (lightBuffer)
+	{
+		/////////////////////////////////////////////
+		// LIGHT BUFFER
+		/////////////////////////////////////////////
+
+		// Lock the light constant buffer so it can be written to.
+		result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		lightDataPtr = (ShaderStructures::LightType*)mappedResource.pData;
+
+		// Copy the light variables into the constant buffer.
+		lightDataPtr->LightPosition = lightBuffer->LightPosition;
+		lightDataPtr->LightDiffuseColor = lightBuffer->LightDiffuseColor;
+		lightDataPtr->LightDistanceSquared = lightBuffer->LightDistanceSquared;
+		lightDataPtr->LightSpecularColor = lightBuffer->LightSpecularColor;
+
+		// Unlock the constant buffer.
+		deviceContext->Unmap(m_lightBuffer, 0);
+
+		bufferNumber = 1;
+
+		// Finanly set the constant buffer in the pixel shader with the updated values.
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+	}
+	/////////////////////////////////////////////
+	// CAMERA BUFFER
+	/////////////////////////////////////////////
+	if (cameraBuffer)
+	{
+		// Lock the camera constant buffer so it can be written to.
+		result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		camDataPtr = (ShaderStructures::CameraType*)mappedResource.pData;
+
+		// Copy the camera variables into the constant buffer.
+		camDataPtr->cameraPosition = camDataPtr->cameraPosition;
+
+		// Unlock the constant buffer.
+		deviceContext->Unmap(m_cameraBuffer, 0);
+
+		bufferNumber = 2;
+
+		// Finanly set the constant buffer in the pixel shader with the updated values.
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
 	}
 
 	return true;
@@ -433,17 +446,14 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 
 void TextureShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
-	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(m_layout);
 
-	// Set the vertex and pixel shaders that will be used to render this triangle.
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
-	// Set the sampler state in the pixel shader.
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	// Render the triangle.
+	//Render
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 
 	return;
