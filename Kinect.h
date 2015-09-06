@@ -22,7 +22,7 @@ public:
 	~KinectHelper();
 
 	bool Initialize();
-	void Shutdown();
+	void Release();
 
 
 	IKinectSensor* m_p_kinect_sensor() const

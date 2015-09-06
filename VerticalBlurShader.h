@@ -15,7 +15,7 @@ public:
 	~VerticalBlurShader();
 
 	bool Initialize(ID3D11Device*, HWND);
-	void Shutdown();
+	void Release();
 	bool Render(ID3D11DeviceContext*, int, XMMATRIX&, XMMATRIX&, XMMATRIX&, ID3D11ShaderResourceView*, float);
 
 private:

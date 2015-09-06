@@ -138,7 +138,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textu
 }
 
 
-void RenderTexture::Shutdown()
+void RenderTexture::Release()
 {
 	if (m_depthStencilView)
 	{

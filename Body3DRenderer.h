@@ -16,7 +16,7 @@ public:
 	~Body3DRenderer();
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const KinectHelper*);
-	void Shutdown();
+	void Release();
 	void Render(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, XMFLOAT3*, XMFLOAT3*); //TODO add a simple color shader class
 
 private:

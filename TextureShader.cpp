@@ -38,7 +38,7 @@ bool TextureShader::Initialize(ID3D11Device* device, HWND hwnd)
 	return true;
 }
 
-void TextureShader::Shutdown()
+void TextureShader::Release()
 {
 	// Shutdown the vertex and pixel shaders as well as the related objects.
 	ShutdownShader();

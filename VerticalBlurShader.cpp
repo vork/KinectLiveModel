@@ -1,7 +1,6 @@
 #include "VerticalBlurShader.h"
 #include <d3dcompiler.h>
 
-
 VerticalBlurShader::VerticalBlurShader()
 {
 	m_vertexShader = 0;
@@ -36,7 +35,7 @@ bool VerticalBlurShader::Initialize(ID3D11Device* device, HWND hwnd)
 	return true;
 }
 
-void VerticalBlurShader::Shutdown()
+void VerticalBlurShader::Release()
 {
 	// Shutdown the vertex and pixel shaders as well as the related objects.
 	ShutdownShader();

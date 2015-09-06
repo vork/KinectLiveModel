@@ -23,3 +23,16 @@
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif
+#include <stdlib.h>
+
+// Safe release for interfaces
+template <class Interface>
+inline void SafeRelease(Interface*& pInterfaceToRelease)
+{
+	if (pInterfaceToRelease != NULL)
+	{
+		pInterfaceToRelease->Release();
+		delete pInterfaceToRelease;
+		pInterfaceToRelease = NULL;
+	}
+}

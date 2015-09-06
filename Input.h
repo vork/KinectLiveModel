@@ -8,6 +8,11 @@ public:
 
 	void Initialize();
 
+	void Release()
+	{
+		//This is just here to be deleteable by SafeRelease
+	}
+
 	void KeyDown(unsigned int);
 	void KeyUp(unsigned int);
 

@@ -142,7 +142,7 @@ bool Body3DRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	return true;
 }
 
-void Body3DRenderer::Shutdown()
+void Body3DRenderer::Release()
 {
 	
 }

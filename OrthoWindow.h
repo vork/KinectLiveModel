@@ -13,7 +13,7 @@ public:
 	~OrthoWindow();
 
 	bool Initialize(ID3D11Device*, int, int);
-	void Shutdown();
+	void Release();
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();

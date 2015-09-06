@@ -71,7 +71,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Camera->SetRotation(0.f, 0.f, 0.f);
 
 	// Create the model object.
-	m_Model = new Model;
+	m_Model = new Landscape3DRenderer;
 	if (!m_Model)
 	{
 		return false;
@@ -257,118 +257,22 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 }
 
 
-void Graphics::Shutdown()
+void Graphics::Release()
 {
-	// Release the full screen ortho window object.
-	if (m_FullScreenWindow)
-	{
-		m_FullScreenWindow->Shutdown();
-		delete m_FullScreenWindow;
-		m_FullScreenWindow = 0;
-	}
-
-	// Release the small ortho window object.
-	if (m_SmallWindow)
-	{
-		m_SmallWindow->Shutdown();
-		delete m_SmallWindow;
-		m_SmallWindow = 0;
-	}
-
-	// Release the up sample render to texture object.
-	if (m_UpSampleTexure)
-	{
-		m_UpSampleTexure->Shutdown();
-		delete m_UpSampleTexure;
-		m_UpSampleTexure = 0;
-	}
-
-	// Release the vertical blur render to texture object.
-	if (m_VerticalBlurTexture)
-	{
-		m_VerticalBlurTexture->Shutdown();
-		delete m_VerticalBlurTexture;
-		m_VerticalBlurTexture = 0;
-	}
-
-	// Release the horizontal blur render to texture object.
-	if (m_HorizontalBlurTexture)
-	{
-		m_HorizontalBlurTexture->Shutdown();
-		delete m_HorizontalBlurTexture;
-		m_HorizontalBlurTexture = 0;
-	}
-
-	// Release the down sample render to texture object.
-	if (m_DownSampleTexure)
-	{
-		m_DownSampleTexure->Shutdown();
-		delete m_DownSampleTexure;
-		m_DownSampleTexure = 0;
-	}
-
-	// Release the render to texture object.
-	if (m_RenderTexture)
-	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = 0;
-	}
-
-	// Release the vertical blur shader object.
-	if (m_VerticalBlurShader)
-	{
-		m_VerticalBlurShader->Shutdown();
-		delete m_VerticalBlurShader;
-		m_VerticalBlurShader = 0;
-	}
-
-	// Release the horizontal blur shader object.
-	if (m_HorizontalBlurShader)
-	{
-		m_HorizontalBlurShader->Shutdown();
-		delete m_HorizontalBlurShader;
-		m_HorizontalBlurShader = 0;
-	}
-
-	// Release the texture shader object.
-	if (m_TextureShader)
-	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = 0;
-	}
-
-	// Release the model object.
-	if (m_Model)
-	{
-		m_Model->Shutdown();
-		delete m_Model;
-		m_Model = 0;
-	}
-
-	// Release the body object.
-	if (m_BodyRenderer)
-	{
-		m_BodyRenderer->Shutdown();
-		delete m_BodyRenderer;
-		m_BodyRenderer = 0;
-	}
-
-	// Release the camera object.
-	if (m_Camera)
-	{
-		delete m_Camera;
-		m_Camera = 0;
-	}
-
-	// Release the D3D object.
-	if (m_device)
-	{
-		m_device->Shutdown();
-		delete m_device;
-		m_device = 0;
-	}
+	SafeRelease(m_FullScreenWindow);
+	SafeRelease(m_SmallWindow);
+	SafeRelease(m_UpSampleTexure);
+	SafeRelease(m_VerticalBlurTexture);
+	SafeRelease(m_HorizontalBlurTexture);
+	SafeRelease(m_DownSampleTexure);
+	SafeRelease(m_RenderTexture);
+	SafeRelease(m_VerticalBlurShader);
+	SafeRelease(m_HorizontalBlurShader);
+	SafeRelease(m_TextureShader);
+	SafeRelease(m_Model);
+	SafeRelease(m_BodyRenderer);
+	SafeRelease(m_Camera);
+	SafeRelease(m_device);
 
 	return;
 }
@@ -380,14 +284,12 @@ bool Graphics::Frame()
 
 	static float rotation = 0.0f;
 
-	// Update the rotation variable each frame.
 	/*rotation += (float)XM_PI * 0.001f;
 	if (rotation > 360.0f)
 	{
 		rotation -= 360.0f;
 	}*/
 
-	// Render the graphics scene.
 	result = Render(rotation);
 	if (!result)
 	{
@@ -403,42 +305,42 @@ bool Graphics::Render(float rotation)
 	bool result;
 
 
-	// First render the scene to a render texture.
+	// Render scene to a texture
 	result = RenderSceneToTexture(rotation);
 	if (!result)
 	{
 		return false;
 	}
 
-	// Next down sample the render texture to a smaller sized texture.
+	// down sample the texture
 	result = DownSampleTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// Perform a horizontal blur on the down sampled render texture.
+	// run the horizontal blur
 	result = RenderHorizontalBlurToTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// Now perform a vertical blur on the horizontal blur render texture.
+	// run the vertical blur
 	result = RenderVerticalBlurToTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// Up sample the final blurred render texture to screen size again.
+	// up samle the texture
 	result = UpSampleTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// Render the blurred up sampled render texture to the screen.
+	// render the blurred shader to the screen
 	result = Render2DTextureScene();
 	if (!result)
 	{
@@ -453,30 +355,27 @@ bool Graphics::RenderSceneToTexture(float rotation)
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
 
-	// Set the render target to be the render to texture.
+	//init the render texture
 	m_RenderTexture->SetRenderTarget(m_device->GetDeviceContext());
+	m_RenderTexture->ClearRenderTarget(m_device->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Clear the render to texture.
-	m_RenderTexture->ClearRenderTarget(m_device->GetDeviceContext(), 0.13f, 0.59f, 0.95f, 1.0f);
-
-	// Generate the view matrix based on the camera's position.
+	//Create the view, world, projection matrix
 	m_Camera->Render();
-
-	// Get the world, view, and projection matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_device->GetWorldMatrix(worldMatrix);
 	m_device->GetProjectionMatrix(projectionMatrix);
 
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	// render the mode
 	m_Model->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &light.color, &light.dir);
 
-	// Put the body vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	// render the body
 	m_BodyRenderer->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &light.color, &light.dir);
 
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
+	//TODO no separate renders
+
+	// reset render targert to back buffer
 	m_device->SetBackBufferRenderTarget();
 
-	// Reset the viewport back to the original.
 	m_device->ResetViewport();
 
 	return true;
@@ -488,30 +387,21 @@ bool Graphics::DownSampleTexture()
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-
-	// Set the render target to be the render to texture.
+	//init the render texture
 	m_DownSampleTexure->SetRenderTarget(m_device->GetDeviceContext());
-
-	// Clear the render to texture.
 	m_DownSampleTexure->ClearRenderTarget(m_device->GetDeviceContext(), 0.0f, 1.0f, 0.0f, 1.0f);
 
-	// Generate the view matrix based on the camera's position.
+	//Create the view, world, ortho matrix
 	m_Camera->Render();
-
-	// Get the world and view matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_device->GetWorldMatrix(worldMatrix);
-
-	// Get the ortho matrix from the render to texture since texture has different dimensions being that it is smaller.
 	m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
 
-	// Turn off the Z buffer to begin all 2D rendering.
+	// 2d rendering -> turn off z buffer
 	m_device->TurnZBufferOff();
 
-	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//Render the texture
 	m_SmallWindow->Render(m_device->GetDeviceContext());
-
-	// Render the small ortho window using the texture shader and the render to texture of the scene as the texture resource.
 	result = m_TextureShader->Render(m_device->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_RenderTexture->GetShaderResourceView(), NULL);
 	if (!result)
@@ -519,13 +409,9 @@ bool Graphics::DownSampleTexture()
 		return false;
 	}
 
-	// Turn the Z buffer back on now that all 2D rendering has completed.
+	//Reset everything to defaults
 	m_device->TurnZBufferOn();
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_device->SetBackBufferRenderTarget();
-
-	// Reset the viewport back to the original.
 	m_device->ResetViewport();
 
 	return true;
@@ -538,33 +424,23 @@ bool Graphics::RenderHorizontalBlurToTexture()
 	float screenSizeX;
 	bool result;
 
-
-	// Store the screen width in a float that will be used in the horizontal blur shader.
 	screenSizeX = (float)m_HorizontalBlurTexture->GetTextureWidth();
 
-	// Set the render target to be the render to texture.
+	//init the render texture
 	m_HorizontalBlurTexture->SetRenderTarget(m_device->GetDeviceContext());
-
-	// Clear the render to texture.
 	m_HorizontalBlurTexture->ClearRenderTarget(m_device->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Generate the view matrix based on the camera's position.
+	//Create the view, world, ortho matrix
 	m_Camera->Render();
-
-	// Get the world and view matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_device->GetWorldMatrix(worldMatrix);
-
-	// Get the ortho matrix from the render to texture since texture has different dimensions.
 	m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	// Turn off the Z buffer to begin all 2D rendering.
+	// 2d rendering -> turn off z buffer
 	m_device->TurnZBufferOff();
 
-	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//Render the texture
 	m_SmallWindow->Render(m_device->GetDeviceContext());
-
-	// Render the small ortho window using the horizontal blur shader and the down sampled render to texture resource.
 	result = m_HorizontalBlurShader->Render(m_device->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_DownSampleTexure->GetShaderResourceView(), screenSizeX);
 	if (!result)
@@ -572,13 +448,9 @@ bool Graphics::RenderHorizontalBlurToTexture()
 		return false;
 	}
 
-	// Turn the Z buffer back on now that all 2D rendering has completed.
+	//Reset everything to defaults
 	m_device->TurnZBufferOn();
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_device->SetBackBufferRenderTarget();
-
-	// Reset the viewport back to the original.
 	m_device->ResetViewport();
 
 	return true;
@@ -592,32 +464,23 @@ bool Graphics::RenderVerticalBlurToTexture()
 	bool result;
 
 
-	// Store the screen height in a float that will be used in the vertical blur shader.
 	screenSizeY = (float)m_VerticalBlurTexture->GetTextureHeight();
 
-	// Set the render target to be the render to texture.
+	//init the render texture
 	m_VerticalBlurTexture->SetRenderTarget(m_device->GetDeviceContext());
-
-	// Clear the render to texture.
 	m_VerticalBlurTexture->ClearRenderTarget(m_device->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Generate the view matrix based on the camera's position.
+	//Create the view, world, ortho matrix
 	m_Camera->Render();
-
-	// Get the world and view matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_device->GetWorldMatrix(worldMatrix);
-
-	// Get the ortho matrix from the render to texture since texture has different dimensions.
 	m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	// Turn off the Z buffer to begin all 2D rendering.
+	// 2d rendering -> turn off z buffer
 	m_device->TurnZBufferOff();
 
-	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//Render the texture
 	m_SmallWindow->Render(m_device->GetDeviceContext());
-
-	// Render the small ortho window using the vertical blur shader and the horizontal blurred render to texture resource.
 	result = m_VerticalBlurShader->Render(m_device->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_HorizontalBlurTexture->GetShaderResourceView(), screenSizeY);
 	if (!result)
@@ -625,13 +488,9 @@ bool Graphics::RenderVerticalBlurToTexture()
 		return false;
 	}
 
-	// Turn the Z buffer back on now that all 2D rendering has completed.
+	//Reset everything to defaults
 	m_device->TurnZBufferOn();
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_device->SetBackBufferRenderTarget();
-
-	// Reset the viewport back to the original.
 	m_device->ResetViewport();
 
 	return true;
@@ -643,30 +502,21 @@ bool Graphics::UpSampleTexture()
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-
-	// Set the render target to be the render to texture.
+	//init the render texture
 	m_UpSampleTexure->SetRenderTarget(m_device->GetDeviceContext());
-
-	// Clear the render to texture.
 	m_UpSampleTexure->ClearRenderTarget(m_device->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Generate the view matrix based on the camera's position.
+	//Create the view, world, ortho matrix
 	m_Camera->Render();
-
-	// Get the world and view matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_device->GetWorldMatrix(worldMatrix);
-
-	// Get the ortho matrix from the render to texture since texture has different dimensions.
 	m_UpSampleTexure->GetOrthoMatrix(orthoMatrix);
 
-	// Turn off the Z buffer to begin all 2D rendering.
+	// 2d rendering -> turn off z buffer
 	m_device->TurnZBufferOff();
 
-	// Put the full screen ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//Render the texture
 	m_FullScreenWindow->Render(m_device->GetDeviceContext());
-
-	// Render the full screen ortho window using the texture shader and the small sized final blurred render to texture resource.
 	result = m_TextureShader->Render(m_device->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_VerticalBlurTexture->GetShaderResourceView(), NULL);
 	if (!result)
@@ -674,13 +524,9 @@ bool Graphics::UpSampleTexture()
 		return false;
 	}
 
-	// Turn the Z buffer back on now that all 2D rendering has completed.
+	//Reset everything to defaults
 	m_device->TurnZBufferOn();
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_device->SetBackBufferRenderTarget();
-
-	// Reset the viewport back to the original.
 	m_device->ResetViewport();
 
 	return true;
@@ -692,25 +538,20 @@ bool Graphics::Render2DTextureScene()
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
+	//init the scene (background color blue)
+	m_device->BeginScene(0.13f, 0.59f, 0.95f, 1.0f);
 
-	// Clear the buffers to begin the scene.
-	m_device->BeginScene(1.0f, 0.0f, 0.0f, 0.0f);
-
-	// Generate the view matrix based on the camera's position.
+	//Create the view, world, projection matrix
 	m_Camera->Render();
-
-	// Get the world, view, and ortho matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_device->GetWorldMatrix(worldMatrix);
 	m_device->GetOrthoMatrix(orthoMatrix);
 
-	// Turn off the Z buffer to begin all 2D rendering.
+	// 2d rendering -> turn off z buffer
 	m_device->TurnZBufferOff();
 
-	// Put the full screen ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//Render the texture
 	m_FullScreenWindow->Render(m_device->GetDeviceContext());
-
-	// Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
 	result = m_TextureShader->Render(m_device->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_UpSampleTexure->GetShaderResourceView(), NULL);
 	if (!result)
@@ -718,10 +559,8 @@ bool Graphics::Render2DTextureScene()
 		return false;
 	}
 
-	// Turn the Z buffer back on now that all 2D rendering has completed.
+	//Reset everything to defaults and end the scene
 	m_device->TurnZBufferOn();
-
-	// Present the rendered scene to the screen.
 	m_device->EndScene();
 
 	return true;

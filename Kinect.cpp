@@ -69,7 +69,7 @@ bool KinectHelper::Initialize()
 	return true;
 }
 
-void KinectHelper::Shutdown()
+void KinectHelper::Release()
 {
 	if (m_pKinectSensor)
 	{

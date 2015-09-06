@@ -10,6 +10,7 @@
 #include "VerticalBlurShader.h"
 #include "RenderTexture.h"
 #include "OrthoWindow.h"
+#include "resource.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -23,7 +24,7 @@ public:
 	~Graphics();
 
 	bool Initialize(int, int, HWND);
-	void Shutdown();
+	void Release();
 	bool Frame();
 
 	void setPosition(float, float, float);
@@ -55,7 +56,7 @@ private:
 	Light light;
 
 	Camera* m_Camera;
-	Model* m_Model;
+	Landscape3DRenderer* m_Model;
 	Body3DRenderer* m_BodyRenderer;
 	const KinectHelper* m_KinectHelper;
 	TextureShader* m_TextureShader;

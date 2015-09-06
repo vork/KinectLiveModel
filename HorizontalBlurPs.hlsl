@@ -23,11 +23,12 @@ float4 HorizontalBlurPixelShader(PixelInputType input) : SV_TARGET
 	float4 color;
 
 	//Average the color of the pixel in center. Add weights to add more effect to the closest neighbor
-	weight0 = 1.0f;
-	weight1 = 0.9f;
-	weight2 = 0.55f;
-	weight3 = 0.18f;
-	weight4 = 0.1f;
+	//values from https://software.intel.com/en-us/blogs/2014/07/15/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms 
+	weight0 = 0.415f;
+	weight1 = 0.262f;
+	weight2 = 0.048f;
+	weight3 = 0.003f;
+	weight4 = 0.001f;
 
 	normalization = (weight0 + 2.0f * (weight1 + weight2 + weight3 + weight4));
 	weight0 = weight0 / normalization;

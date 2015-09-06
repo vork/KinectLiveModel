@@ -1,7 +1,6 @@
 #include "HorizontalBlurShader.h"
 #include <d3dcompiler.h>
 
-
 HorizontalBlurShader::HorizontalBlurShader()
 {
 	m_vertexShader = 0;
@@ -36,7 +35,7 @@ bool HorizontalBlurShader::Initialize(ID3D11Device* device, HWND hwnd)
 	return true;
 }
 
-void HorizontalBlurShader::Shutdown()
+void HorizontalBlurShader::Release()
 {
 	// Shutdown the vertex and pixel shaders as well as the related objects.
 	ShutdownShader();

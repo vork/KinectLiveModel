@@ -23,11 +23,12 @@ float4 VerticalBlurPixelShader(PixelInputType input) : SV_TARGET
 	float4 color;
 
 	// Create the weights that each neighbor pixel will contribute to the blur.
-	weight0 = 1.0f;
-	weight1 = 0.9f;
-	weight2 = 0.55f;
-	weight3 = 0.18f;
-	weight4 = 0.1f;
+	// values from https://software.intel.com/en-us/blogs/2014/07/15/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms 
+	weight0 = 0.415f;
+	weight1 = 0.262f;
+	weight2 = 0.048f;
+	weight3 = 0.003f;
+	weight4 = 0.001f;
 
 	// Create a normalized value to average the weights out a bit.
 	normalization = (weight0 + 2.0f * (weight1 + weight2 + weight3 + weight4));

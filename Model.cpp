@@ -2,20 +2,20 @@
 #include <limits.h>
 
 
-Model::Model()
+Landscape3DRenderer::Landscape3DRenderer()
 {
 
 }
 
-Model::Model(const Model& other)
+Landscape3DRenderer::Landscape3DRenderer(const Landscape3DRenderer& other)
 {
 }
 
-Model::~Model()
+Landscape3DRenderer::~Landscape3DRenderer()
 {
 }
 
-bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+bool Landscape3DRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	bool result;
 
@@ -29,7 +29,7 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	return true;
 }
 
-void Model::Shutdown()
+void Landscape3DRenderer::Release()
 {
 	// Release the model texture.
 	ReleaseTexture();
@@ -40,7 +40,7 @@ void Model::Shutdown()
 	return;
 }
 
-void Model::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
+void Landscape3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
 {
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	RenderBuffers(deviceContext, texShader, world, view, projection, lightColor, lightDir);
@@ -48,12 +48,12 @@ void Model::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader,
 	return;
 }
 
-int Model::GetIndexCount(int index)
+int Landscape3DRenderer::GetIndexCount(int index)
 {
 	return m_Entries[index].NumIndices;
 }
 
-ID3D11ShaderResourceView* Model::GetTexture(int index)
+ID3D11ShaderResourceView* Landscape3DRenderer::GetTexture(int index)
 {
 	if (m_Textures.find(m_Materials[index].texture) == m_Textures.end())
 	{
@@ -62,7 +62,7 @@ ID3D11ShaderResourceView* Model::GetTexture(int index)
 	return m_Textures[m_Materials[index].texture].GetTexture();
 }
 
-void Model::calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box)
+void Landscape3DRenderer::calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box)
 {
 	for (int i = 0; i < pMesh->mNumVertices; i++)
 	{
@@ -95,7 +95,7 @@ void Model::calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box)
 	}
 }
 
-void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* device)
+void Landscape3DRenderer::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* device)
 {
 	m_Entries[Index].MaterialIndex = pMesh->mMaterialIndex;
 
@@ -225,7 +225,7 @@ void Model::InitMesh(unsigned int Index, const aiMesh* pMesh, ID3D11Device* devi
 	return;
 }
 
-bool Model::InitMaterials(const aiScene* pScene, const std::string& Filename, ID3D11Device* device, ID3D11DeviceContext* context)
+bool Landscape3DRenderer::InitMaterials(const aiScene* pScene, const std::string& Filename, ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	m_Materials.resize(pScene->mNumMaterials);
 	mat_Count = pScene->mNumMaterials;
@@ -278,7 +278,7 @@ bool Model::InitMaterials(const aiScene* pScene, const std::string& Filename, ID
 	return true;
 }
 
-bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context)
+bool Landscape3DRenderer::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context)
 {
 	Assimp::Importer Importer;
 	const aiScene* pScene = NULL;
@@ -312,7 +312,7 @@ bool Model::InitializeBuffers(ID3D11Device* device, ID3D11DeviceContext* context
 	return InitMaterials(pScene, filename, device, context);
 }
 
-void Model::ShutdownBuffers()
+void Landscape3DRenderer::ShutdownBuffers()
 {
 	// Release the MeshEntries
 	for (int i = 0; i < m_Entries.size(); i++)
@@ -326,7 +326,7 @@ void Model::ShutdownBuffers()
 	m_Entries.clear();
 }
 
-void Model::RenderBuffers(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
+void Landscape3DRenderer::RenderBuffers(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir)
 {
 	unsigned int stride;
 	unsigned int offset;
@@ -378,7 +378,7 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext, TextureShader* tex
 	}
 }
 
-void Model::ReleaseTexture()
+void Landscape3DRenderer::ReleaseTexture()
 {
 	std::map<string, Texture>::iterator it;
 	for (it = m_Textures.begin(); it != m_Textures.end(); ++it)

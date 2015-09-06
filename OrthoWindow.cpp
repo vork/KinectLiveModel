@@ -32,7 +32,7 @@ bool OrthoWindow::Initialize(ID3D11Device* device, int windowWidth, int windowHe
 	return true;
 }
 
-void OrthoWindow::Shutdown()
+void OrthoWindow::Release()
 {
 	// Release the vertex and index buffers.
 	ShutdownBuffers();

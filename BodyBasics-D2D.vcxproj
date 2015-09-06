@@ -20,16 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Body3DRenderer.cpp" />
-    <ClCompile Include="BodyBasics.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="D3Device.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="HorizontalBlurShader.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Kinect.cpp" />
-    <ClCompile Include="Landscape3DSceneRenderer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="OrthoWindow.cpp" />
@@ -45,16 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body3DRenderer.h" />
-    <ClInclude Include="BodyBasics.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="D3Device.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="HorizontalBlurShader.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Kinect.h" />
-    <ClInclude Include="Landscape3DSceneRenderer.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="Model.h" />
     <ClInclude Include="OrthoWindow.h" />
     <ClInclude Include="RenderTexture.h" />

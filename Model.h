@@ -14,15 +14,15 @@
 using namespace DirectX;
 using namespace ShaderStructures;
 
-class Model
+class Landscape3DRenderer
 {
 public:
-	Model();
-	Model(const Model&);
-	~Model();
+	Landscape3DRenderer();
+	Landscape3DRenderer(const Landscape3DRenderer&);
+	~Landscape3DRenderer();
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*);
-	void Shutdown();
+	void Release();
 	void Render(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, XMFLOAT3*, XMFLOAT3*);
 
 	int GetIndexCount(int);

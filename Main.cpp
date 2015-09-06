@@ -1,5 +1,4 @@
 #include "System.h"
-#include <iostream>
 
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -11,25 +10,18 @@ int APIENTRY wWinMain(
 	System* system;
 	bool result;
 
-	std::cout << "Starting" << std::endl;
-
-	// Create the system object.
 	system = new System;
 	if (!system)
 	{
 		return 0;
 	}
 
-	// Initialize and run the system object.
-
-	std::cout << "about to initialize" << std::endl;
 	result = system->Initialize();
 	if (result)
 	{
 		system->Run();
 	}
 
-	// Shutdown and release the system object.
 	system->Shutdown();
 	delete system;
 	system = 0;

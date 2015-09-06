@@ -66,14 +66,3 @@ private:
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 static System* ApplicationHandle = 0;
-
-// Safe release for interfaces
-template <class Interface>
-inline void SafeRelease(Interface*& pInterfaceToRelease)
-{
-	if (pInterfaceToRelease != NULL)
-	{
-		pInterfaceToRelease->Release();
-		pInterfaceToRelease = NULL;
-	}
-}
