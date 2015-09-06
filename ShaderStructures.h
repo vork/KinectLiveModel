@@ -18,8 +18,8 @@ namespace ShaderStructures {
 	{
 		XMFLOAT4 materialAmbient;
 		XMFLOAT4 materialDiffuse;
-		XMFLOAT4 materialSpecular;
-		XMFLOAT4 materialEmissive;
+		XMFLOAT3 materialSpecular;
+		XMFLOAT3 materialEmissive;
 		float materialPower;
 	};
 

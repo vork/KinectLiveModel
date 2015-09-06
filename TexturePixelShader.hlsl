@@ -1,23 +1,16 @@
 Texture2D shaderTexture;
 SamplerState SampleType;
 
-cbuffer MaterialBuffer{
+cbuffer InputBuffer {
 	float4 materialAmbient;
 	float4 materialDiffuse;
 	float3 materialSpecular;
 	float3 materialEmissive;
 	float materialPower;
-}
-
-cbuffer LightBuffer{
 	float3 LightPosition;
 	float3 LightDiffuseColor;
 	float3 LightSpecularColor;
 	float LightDistanceSquared;
-};
-
-cbuffer CameraBuffer
-{
 	float3 cameraPosition;
 };
 
