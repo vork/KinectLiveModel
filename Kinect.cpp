@@ -57,7 +57,11 @@ bool KinectHelper::Initialize()
 			hr = pBodyFrameSource->OpenReader(&m_pBodyFrameReader);
 		}
 
-		SafeRelease(pBodyFrameSource);
+		/*if (pBodyFrameSource != NULL) //TODO Don't tidy up. It crashes.
+		{
+			delete pBodyFrameSource;
+			pBodyFrameSource = NULL;
+		}*/
 	}
 
 	if (!m_pKinectSensor || FAILED(hr))

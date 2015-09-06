@@ -55,7 +55,7 @@ private:
 
 	std::vector<MaterialType> m_Materials;
 	std::vector<MeshEntry> m_Entries;
-	Texture m_Texture;
+	Texture* m_Texture;
 
 	int mat_Count;
 

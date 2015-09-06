@@ -1,10 +1,11 @@
 #include "Model.h"
 #include <limits.h>
+#include "resource.h"
 
 
 Landscape3DRenderer::Landscape3DRenderer()
 {
-
+	m_Texture = 0;
 }
 
 Landscape3DRenderer::Landscape3DRenderer(const Landscape3DRenderer& other)
@@ -55,7 +56,7 @@ int Landscape3DRenderer::GetIndexCount(int index)
 
 ID3D11ShaderResourceView* Landscape3DRenderer::GetTexture()
 {
-	return m_Texture.GetTexture();
+	return m_Texture->GetTexture();
 }
 
 void Landscape3DRenderer::calculateBoundingBox(const aiMesh* pMesh, BoundingBox* bounding_box)
@@ -252,15 +253,16 @@ bool Landscape3DRenderer::InitMaterials(const aiScene* pScene, const std::string
 		pMaterial->Get(AI_MATKEY_SHININESS, shininess);
 		m_Materials[i].materialPower = shininess;
 
-		if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+		if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0 && !m_Texture) {
 			aiString Path;
 
 			if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &Path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
 				char* path = Path.data;
-				if (!m_Texture.Initialize(device, context, path))
+				m_Texture = new Texture;
+				if (!m_Texture->Initialize(device, context, path))
 				{
 					printf("Error loading texture '%s'\n", Path.data);
-					m_Texture.Release();
+					m_Texture->Release();
 					return false;
 				}
 			}
@@ -349,7 +351,7 @@ void Landscape3DRenderer::RenderBuffers(ID3D11DeviceContext* deviceContext, Text
 
 		MaterialType curMaterial = m_Materials[curEntry.MaterialIndex];
 
-		ID3D11ShaderResourceView* texture = m_Texture.GetTexture();
+		ID3D11ShaderResourceView* texture = m_Texture->GetTexture();
 		bool result = texShader->Render(deviceContext, curEntry.NumIndices, *world, *view, *projection, texture, &curMaterial, camera, light);
 		if (!result)
 		{
@@ -360,5 +362,5 @@ void Landscape3DRenderer::RenderBuffers(ID3D11DeviceContext* deviceContext, Text
 
 void Landscape3DRenderer::ReleaseTexture()
 {
-	m_Texture.Release();
+	SafeRelease(m_Texture);
 }
