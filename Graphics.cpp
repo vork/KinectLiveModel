@@ -349,6 +349,8 @@ bool Graphics::Render(float rotation)
 		return false;
 	}
 
+	//TODO merge the blurred texture with the standard texture
+
 	return true;
 }
 

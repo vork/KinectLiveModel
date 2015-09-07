@@ -17,17 +17,11 @@
     <ClCompile Include="Input.cpp">
       <Filter>Helper</Filter>
     </ClCompile>
-    <ClCompile Include="Kinect.cpp">
-      <Filter>Helper</Filter>
-    </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Landscape</Filter>
     </ClCompile>
     <ClCompile Include="System.cpp">
       <Filter>Helper</Filter>
-    </ClCompile>
-    <ClCompile Include="RigJoint.cpp">
-      <Filter>Kinect</Filter>
     </ClCompile>
     <ClCompile Include="HorizontalBlurShader.cpp">
       <Filter>PostFx</Filter>
@@ -46,6 +40,12 @@
     </ClCompile>
     <ClCompile Include="TextureShader.cpp">
       <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="BoneJoint.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="Kinect.cpp">
+      <Filter>Kinect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -67,17 +67,11 @@
     <ClInclude Include="Input.h">
       <Filter>Helper</Filter>
     </ClInclude>
-    <ClInclude Include="Kinect.h">
-      <Filter>Helper</Filter>
-    </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Landscape</Filter>
     </ClInclude>
     <ClInclude Include="System.h">
       <Filter>Helper</Filter>
-    </ClInclude>
-    <ClInclude Include="RigJoint.h">
-      <Filter>Kinect</Filter>
     </ClInclude>
     <ClInclude Include="ShaderStructures.h">
       <Filter>Helper</Filter>
@@ -99,6 +93,12 @@
     </ClInclude>
     <ClInclude Include="TextureShader.h">
       <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneJoint.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="Kinect.h">
+      <Filter>Kinect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

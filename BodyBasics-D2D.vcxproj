@@ -30,7 +30,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="OrthoWindow.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
-    <ClCompile Include="RigJoint.cpp" />
+    <ClCompile Include="BoneJoint.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureShader.cpp" />
@@ -51,7 +51,7 @@
     <ClInclude Include="OrthoWindow.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="RigJoint.h" />
+    <ClInclude Include="BoneJoint.h" />
     <ClInclude Include="ShaderStructures.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Texture.h" />

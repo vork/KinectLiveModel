@@ -16,7 +16,7 @@ bool Body3DRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 {
 	m_pKinectHelper = helper;
 
-	m_BoneHierarchy = helper->CreateBoneHierarchy();
+	m_BoneHierarchy = helper->CreateHierarchy();
 
 	Assimp::Importer Importer;
 	const aiScene* pScene = NULL;
@@ -83,7 +83,7 @@ bool Body3DRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 
 	for (int i = 0; i < pMesh->mNumVertices; i++)
 	{
-		XMFLOAT3 pos(pMesh->mVertices[i].x /*/ range * 5*/, pMesh->mVertices[i].y  /*/ range * 5*/, pMesh->mVertices[i].z  /*/ range * 5*/);
+		XMFLOAT3 pos(pMesh->mVertices[i].x , pMesh->mVertices[i].y, pMesh->mVertices[i].z);
 		Vertices[i].position = pos;
 		if (pMesh->GetNumUVChannels() > 0) {
 			XMFLOAT2 texcoord(pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y);
@@ -158,16 +158,16 @@ void Body3DRenderer::DrawBone(ID3D11DeviceContext* context, TextureShader* texSh
 
 	offset = 0;
 
-	//deviceContext->UpdateSubresource(curEntry.VB, 0, NULL, , 0, 0);
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
+	// Activate the vertex buffer
 	context->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 
-	// Set the index buffer to active in the input assembler so it can be rendered.
+	// Activate the index buffer
 	context->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	// Topology are triangles
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// Fill in the data for the constant buffer in the shader
 	MaterialType materialType;
 	materialType.materialAmbient = XMFLOAT4(color.x, color.y, color.z, 1.f);
 	materialType.materialDiffuse = XMFLOAT4(color.x, color.y, color.z, 1.f);
@@ -183,6 +183,7 @@ void Body3DRenderer::DrawBone(ID3D11DeviceContext* context, TextureShader* texSh
 
 void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* texShader, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, CameraType* camera, LightType* light)
 {
+	//Safety first. Is everything loaded correctly?
 	if (!m_pKinectHelper->m_p_body_frame_reader())
 	{
 		return;
@@ -190,7 +191,7 @@ void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* t
 
 	IBodyFrame* pBodyFrame = NULL;
 
-	bool updated = false;
+	//Get the last frame from the kinect
 	HRESULT hr = m_pKinectHelper->m_p_body_frame_reader()->AcquireLatestFrame(&pBodyFrame);
 	if (SUCCEEDED(hr))
 	{
@@ -202,11 +203,13 @@ void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* t
 
 		if (SUCCEEDED(hr))
 		{
+			//Refresh the bodies array with the bodies detected in the frame
 			hr = pBodyFrame->GetAndRefreshBodyData(_countof(ppBodies), ppBodies);
 		}
 
 		if (SUCCEEDED(hr))
 		{
+			//Process the body
 			ProcessBody(BODY_COUNT, ppBodies, deviceContext, texShader, world, view, projection, camera, light);
 		}
 
@@ -214,7 +217,6 @@ void Body3DRenderer::Render(ID3D11DeviceContext* deviceContext, TextureShader* t
 		{
 			SafeRelease(ppBodies[i]);
 		}
-		updated = true;
 	}
 
 	SafeRelease(pBodyFrame);
@@ -225,7 +227,7 @@ void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceC
 	HRESULT hr;
 	if (m_pKinectHelper->m_p_coordinate_mapper()) //Safety first !
 	{
-		for (int i = 0; i < nBodyCount; ++i)
+		for (int i = 0; i < nBodyCount; ++i) //Go through all the bodies
 		{
 			IBody* pBody = ppBodies[i];
 			if (pBody)
@@ -233,16 +235,19 @@ void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceC
 				BOOLEAN bTracked = false;
 				hr = pBody->get_IsTracked(&bTracked);
 
-				if (SUCCEEDED(hr) && bTracked)
+				if (SUCCEEDED(hr) && bTracked) //Check if the body is tracked
 				{
-					const float boneLen = 3.5f;
+					// Setup the length of a bone, and init the transformation matrices
+					const float boneLen = 4.0f;
 					XMVECTOR transformed = { 0.0f, 0.0f, 0.0f, 0.0f };
 					XMVECTOR res = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-					KinectHelper::TraverseBoneHierarchy(m_BoneHierarchy,
+					//Call the traverse function and pass in a function
+					KinectHelper::TraverseHierarchy(m_BoneHierarchy,
 						[&pBody, &res, this, &transformed, boneLen, &context, &texShader,
-						&world, &view, &projection, &camera, &light](shared_ptr<RigJoint>& t)
+						&world, &view, &projection, &camera, &light](shared_ptr<BoneJoint>& t)
 					{
+						// Get the orientation of the joint
 						JointOrientation joint_orientation[JointType_Count];
 						pBody->GetJointOrientations(JointType_Count, joint_orientation);
 
@@ -251,34 +256,34 @@ void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceC
 						{
 							if (joint_orientation[i].JointType == t->JointType())
 							{
-								t->_orientation = joint_orientation[i];
+								t->m_orientation = joint_orientation[i];
 								break;
 							}
 						}
 
-						// if orientation is zero use the parent orientation
-						JointOrientation orientation = t->_orientation;
+						JointOrientation orientation = t->m_orientation;
 
-						auto v4 = XMFLOAT4(t->_orientation.Orientation.x,
-							t->_orientation.Orientation.y,
-							t->_orientation.Orientation.z,
-							t->_orientation.Orientation.w);
+						auto vec4 = XMFLOAT4(t->m_orientation.Orientation.x,
+							t->m_orientation.Orientation.y,
+							t->m_orientation.Orientation.z,
+							t->m_orientation.Orientation.w);
 
 						auto parent = t->Parent();
-						if (XMVector4Equal(XMLoadFloat4(&v4), XMVectorZero()) && parent != nullptr)
+						// Some leaf orientations are zero. In that case we need to switch to the parent orientation
+						if (XMVector4Equal(XMLoadFloat4(&vec4), XMVectorZero()) && parent != nullptr)
 						{
-							orientation = parent->_orientation;
+							orientation = parent->m_orientation;
 						}
 
-						//Create a rotation Matrix
-						//For the root start with a transform (absolute position of the whole body)
-						//For the other joints start with the parent transforms
-						auto f4 = XMFLOAT4(orientation.Orientation.x, orientation.Orientation.y, orientation.Orientation.z, orientation.Orientation.w);
-						auto rotMatrix = XMMatrixRotationQuaternion(XMLoadFloat4(&f4));
+						// Depending on the location we need to get either ...
+						auto orientationVec4 = XMFLOAT4(orientation.Orientation.x, orientation.Orientation.y, orientation.Orientation.z, orientation.Orientation.w);
+						auto rotMatrix = XMMatrixRotationQuaternion(XMLoadFloat4(&orientationVec4));
+						// ...  the parent transformation (non root node) (affine transformation) ...
 						if (parent != nullptr)
 						{
-							transformed = parent->_transformed;
+							transformed = parent->m_transformed;
 						}
+						// ... or the absolute position for the rotation matrix (Root node) 
 						else
 						{
 							Joint joints[JointType_Count];
@@ -288,31 +293,30 @@ void Body3DRenderer::ProcessBody(int nBodyCount, IBody** ppBodies, ID3D11DeviceC
 							{
 								if (joints[i].JointType == t->JointType())
 								{
+									// So transform to the absolute position
 									auto pos = joints[i].Position;
 									auto v3 = XMFLOAT3(MULT * pos.X, MULT * pos.Y, MULT * pos.Z);
 									transformed = XMLoadFloat3(&v3);
 									break;
+									// This will transform all bones in the hierachy
 								}
 							}
 						}
 
-						//Convert vector into transform matrix and store in model matrix
+						// Create the transforma matrix and then store it in the world matrix //TODO is this correct
 						auto translatedOrigin = XMMatrixTranslationFromVector(transformed);
-						//XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixTranspose(translatedOrigin)); //TODO store data
+						m_matrixBuffer.world = XMMatrixTranspose(translatedOrigin);
 
-						auto translated = XMMatrixTranslation(0.0f, boneLen, 0.0f);
 						auto scaleMat = XMMatrixScaling(1.0f, t->BoneLength(), 1.0f);
 						auto mat = scaleMat * rotMatrix * translatedOrigin;
-						//XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixTranspose(mat)); //TODO store data
+						m_matrixBuffer.world = XMMatrixTranspose(mat);
 
-						auto f3 = XMFLOAT3(0.0f, boneLen, 0.0f);
-						t->_transformed = XMVector3TransformCoord(XMLoadFloat3(&f3), mat);
+						auto boneVec3 = XMFLOAT3(0.0f, boneLen, 0.0f);
+						t->m_transformed = XMVector3TransformCoord(XMLoadFloat3(&boneVec3), mat);
 
 						if (parent != nullptr)
 						{
-							// TODO draw the bone
-							DrawBone(context, texShader, t->getColour(), world, view, projection, camera, light);
-							//ID3D11DeviceContext* context, TextureShader* texShader, XMFLOAT3 color, XMMATRIX* world, XMMATRIX* view, XMMATRIX* projection, XMFLOAT3* lightColor, XMFLOAT3* lightDir
+							DrawBone(context, texShader, t->getColor(), world, view, projection, camera, light);
 						}
 					});
 				}

@@ -17,11 +17,11 @@ public:
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const KinectHelper*);
 	void Release();
-	void Render(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, CameraType* camera, LightType* light); //TODO add a simple color shader class
+	void Render(ID3D11DeviceContext*, TextureShader*, XMMATRIX*, XMMATRIX*, XMMATRIX*, CameraType* camera, LightType* light);
 
 private:
 	const KinectHelper* m_pKinectHelper;
-	shared_ptr<RigJoint> m_BoneHierarchy;
+	shared_ptr<BoneJoint> m_BoneHierarchy;
 
 	bool InitializeBuffers();
 	void RenderBuffers();
@@ -32,6 +32,8 @@ private:
 	ID3D11Buffer* m_vertexBuffer;
 	ID3D11Buffer* m_indexBuffer;
 	ID3D11Buffer* m_constantBuffer;
+
+	MatrixType m_matrixBuffer;
 
 	UINT32 m_indexCount;
 

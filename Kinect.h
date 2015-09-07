@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Kinect.h>
-#include "RigJoint.h"
+#include "BoneJoint.h"
 
 #define MULT 1
 
@@ -40,9 +40,9 @@ public:
 		return m_pCoordinateMapper;
 	}
 
-	static shared_ptr<RigJoint> CreateBoneHierarchy();
-	static void TraverseBoneHierarchy(shared_ptr<RigJoint>& node,
-		function<void(shared_ptr<RigJoint>&)> f);
+	static shared_ptr<BoneJoint> CreateHierarchy();
+	static void TraverseHierarchy(shared_ptr<BoneJoint>& node,
+		function<void(shared_ptr<BoneJoint>&)> f);
 
 	static const float lenSpineBaseToSpineMid;
 	static const float lenSpineMidToSpineShoulder;
