@@ -27,7 +27,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Kinect.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Landscape3DRenderer.cpp" />
     <ClCompile Include="OrthoWindow.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="BoneJoint.cpp" />
@@ -47,7 +47,7 @@
     <ClInclude Include="HorizontalBlurShader.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Kinect.h" />
-    <ClInclude Include="Model.h" />
+    <ClInclude Include="Landscape3DRenderer.h" />
     <ClInclude Include="OrthoWindow.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="resource.h" />

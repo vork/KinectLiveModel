@@ -40,6 +40,5 @@ namespace ShaderStructures {
 		XMFLOAT3 LightPosition;
 		XMFLOAT3 LightDiffuseColor;
 		XMFLOAT3 LightSpecularColor;
-		float LightDistanceSquared;
 	};
 }

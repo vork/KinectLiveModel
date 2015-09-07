@@ -323,7 +323,7 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 	/////////////////////////////////////////////
 	// MATERIAL BUFFER
 	/////////////////////////////////////////////
-	if (materialBuffer)
+	if (materialBuffer && lightBuffer && cameraBuffer)
 	{
 		// Lock the material constant buffer so it can be written to.
 		result = deviceContext->Map(m_inputBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -341,7 +341,6 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 		matDataPtr->materialPower = materialBuffer->materialPower;
 		matDataPtr->materialSpecular = materialBuffer->materialSpecular;
 		matDataPtr->LightDiffuseColor = lightBuffer->LightDiffuseColor;
-		matDataPtr->LightDistanceSquared = lightBuffer->LightDistanceSquared;
 		matDataPtr->LightPosition = lightBuffer->LightPosition;
 		matDataPtr->LightSpecularColor = lightBuffer->LightSpecularColor;
 		matDataPtr->cameraPosition = cameraBuffer->cameraPosition;

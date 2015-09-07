@@ -2,7 +2,7 @@
 
 #include "D3Device.h"
 #include "Camera.h"
-#include "Model.h"
+#include "Landscape3DRenderer.h"
 #include "TextureShader.h"
 #include "Body3DRenderer.h"
 #include "Kinect.h"
@@ -53,13 +53,12 @@ private:
 		XMFLOAT3 pos;
 		XMFLOAT3 diffcolor;
 		XMFLOAT3 speccolor;
-		float lightDistanceSquared;
 	};
 
 	Light light;
 
 	Camera* m_Camera;
-	Landscape3DRenderer* m_Model;
+	Landscape3DRenderer* m_Landscape;
 	Body3DRenderer* m_BodyRenderer;
 	const KinectHelper* m_KinectHelper;
 	TextureShader* m_TextureShader;

@@ -17,9 +17,6 @@
     <ClCompile Include="Input.cpp">
       <Filter>Helper</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Landscape</Filter>
-    </ClCompile>
     <ClCompile Include="System.cpp">
       <Filter>Helper</Filter>
     </ClCompile>
@@ -47,6 +44,9 @@
     <ClCompile Include="Kinect.cpp">
       <Filter>Kinect</Filter>
     </ClCompile>
+    <ClCompile Include="Landscape3DRenderer.cpp">
+      <Filter>Landscape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body3DRenderer.h">
@@ -66,9 +66,6 @@
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Helper</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Landscape</Filter>
     </ClInclude>
     <ClInclude Include="System.h">
       <Filter>Helper</Filter>
@@ -99,6 +96,9 @@
     </ClInclude>
     <ClInclude Include="Kinect.h">
       <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="Landscape3DRenderer.h">
+      <Filter>Landscape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

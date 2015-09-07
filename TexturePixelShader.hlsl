@@ -10,7 +10,6 @@ cbuffer InputBuffer {
 	float3 LightPosition;
 	float3 LightDiffuseColor;
 	float3 LightSpecularColor;
-	float LightDistanceSquared;
 	float3 cameraPosition;
 };
 
@@ -24,12 +23,16 @@ struct PixelInputType
 
 float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 {
-	float3 lightDir = normalize(input.worldPos - LightPosition);
-	float diffuseLighting = saturate(dot(input.normal, -lightDir));
+	float3 lightDir = normalize(LightPosition - input.worldPos);
+	float distance = length(lightDir);
+	lightDir = lightDir / distance;
+	float LightDistanceSquared = distance * distance;
+
+	float diffuseLighting = saturate(dot(input.normal, lightDir));
 
 	diffuseLighting *= (LightDistanceSquared / dot(LightPosition - input.worldPos, LightPosition - input.worldPos));
 
-	float3 h = normalize(normalize(cameraPosition - input.worldPos) - lightDir); //half vector
+	float3 h = normalize(normalize(cameraPosition - input.worldPos) + lightDir); //half vector
 	float specLighting = pow(saturate(dot(h, input.normal)), materialPower);
 	float4 texel = shaderTexture.Sample(SampleType, input.tex);
 

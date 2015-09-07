@@ -5,7 +5,7 @@ Graphics::Graphics(const KinectHelper* kinect)
 {
 	m_device = 0;
 	m_Camera = 0;
-	m_Model = 0;
+	m_Landscape = 0;
 	m_TextureShader = 0;
 	m_KinectHelper = kinect;
 
@@ -71,8 +71,8 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Camera->SetRotation(0.f, 0.f, 0.f);
 
 	// Create the model object.
-	m_Model = new Landscape3DRenderer;
-	if (!m_Model)
+	m_Landscape = new Landscape3DRenderer;
+	if (!m_Landscape)
 	{
 		return false;
 	}
@@ -91,7 +91,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_device->GetDevice(), m_device->GetDeviceContext());
+	result = m_Landscape->Initialize(m_device->GetDevice(), m_device->GetDeviceContext());
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -253,7 +253,6 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	light.pos = XMFLOAT3(2.5f, 5.0f, 2.5f);
 	light.diffcolor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	light.speccolor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	light.lightDistanceSquared = 4;
 
 	return true;
 }
@@ -271,7 +270,7 @@ void Graphics::Release()
 	SafeRelease(m_VerticalBlurShader);
 	SafeRelease(m_HorizontalBlurShader);
 	SafeRelease(m_TextureShader);
-	SafeRelease(m_Model);
+	SafeRelease(m_Landscape);
 	SafeRelease(m_BodyRenderer);
 	SafeRelease(m_Camera);
 	SafeRelease(m_device);
@@ -373,14 +372,13 @@ bool Graphics::RenderSceneToTexture(float rotation)
 
 	lightType.LightSpecularColor = light.speccolor;
 	lightType.LightDiffuseColor = light.diffcolor;
-	lightType.LightDistanceSquared = light.lightDistanceSquared;
 	lightType.LightPosition = light.pos;
 
-	// render the mode
-	m_Model->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &lightType, &cameraType);
+	// render the landscape
+	m_Landscape->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &lightType, &cameraType);
 
-	// render the body
-	m_BodyRenderer->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &cameraType, &lightType);
+	// render the body //TODO add back
+	//m_BodyRenderer->Render(m_device->GetDeviceContext(), m_TextureShader, &worldMatrix, &viewMatrix, &projectionMatrix, &cameraType, &lightType);
 
 	//TODO no separate renders
 
