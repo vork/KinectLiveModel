@@ -11,11 +11,15 @@ Graphics::Graphics(const KinectHelper* kinect)
 
 	m_HorizontalBlurShader = 0;
 	m_VerticalBlurShader = 0;
+	m_bloomShader = 0;
+	m_retainBrighnessShader = 0;
 	m_RenderTexture = 0;
 	m_DownSampleTexure = 0;
 	m_HorizontalBlurTexture = 0;
 	m_VerticalBlurTexture = 0;
 	m_UpSampleTexure = 0;
+	m_BloomTexture = 0;
+	m_retainBrighnessShader = 0;
 	m_SmallWindow = 0;
 	m_FullScreenWindow = 0;
 }
@@ -56,7 +60,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_device->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing Direct3D.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -94,7 +98,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_Landscape->Initialize(m_device->GetDevice(), m_device->GetDeviceContext());
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the landscape object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -102,7 +106,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_TextureShader->Initialize(m_device->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -110,7 +114,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_BodyRenderer->Initialize(m_device->GetDevice(), m_device->GetDeviceContext(), m_KinectHelper);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the body renderer object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the body renderer object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -125,7 +129,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_HorizontalBlurShader->Initialize(m_device->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the horizontal blur shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the horizontal blur shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -140,7 +144,23 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_VerticalBlurShader->Initialize(m_device->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the vertical blur shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the vertical blur shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Initialize the retain brightness shader object.
+	result = m_retainBrighnessShader->Initialize(m_device->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Error while initializing the retain brightness shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Initialize the glow shader object.
+	result = m_bloomShader->Initialize(m_device->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Error while initializing the bloom shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -155,7 +175,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_RenderTexture->Initialize(m_device->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -170,7 +190,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_DownSampleTexure->Initialize(m_device->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the down sample render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -185,7 +205,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_HorizontalBlurTexture->Initialize(m_device->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the horizontal blur render to texture object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the horizontal blur render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -200,7 +220,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_VerticalBlurTexture->Initialize(m_device->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the vertical blur render to texture object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the vertical blur render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -215,7 +235,37 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_UpSampleTexure->Initialize(m_device->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the up sample render to texture object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the up sample render to texture object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the up sample render to texture object.
+	m_RetainedBrightnessTexture = new RenderTexture;
+	if (!m_RetainedBrightnessTexture)
+	{
+		return false;
+	}
+
+	// Initialize the up sample render to texture object.
+	result = m_RetainedBrightnessTexture->Initialize(m_device->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Error while initializing the retain brightness render to texture object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the up sample render to texture object.
+	m_BloomTexture = new RenderTexture;
+	if (!m_BloomTexture)
+	{
+		return false;
+	}
+
+	// Initialize the up sample render to texture object.
+	result = m_BloomTexture->Initialize(m_device->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Error while initializing the bloom render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -230,7 +280,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_SmallWindow->Initialize(m_device->GetDevice(), downSampleWidth, downSampleHeight);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the small ortho window object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the small ortho window object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -245,7 +295,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_FullScreenWindow->Initialize(m_device->GetDevice(), screenWidth, screenHeight);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Error while initializing the full screen ortho window object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -305,16 +355,15 @@ bool Graphics::Render(float rotation)
 {
 	bool result;
 
-
-	// Render scene to a texture
-	result = RenderSceneToTexture(rotation);
+	// down sample the texture
+	result = DownSampleTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// down sample the texture
-	result = DownSampleTexture();
+	// Render scene to a texture
+	result = RenderSceneToTexture(rotation);
 	if (!result)
 	{
 		return false;
@@ -390,6 +439,40 @@ bool Graphics::RenderSceneToTexture(float rotation)
 	return true;
 }
 
+bool Graphics::RetainBrightnessTexture()
+{
+	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
+	bool result;
+
+	//init the render texture
+	m_RetainedBrightnessTexture->SetRenderTarget(m_device->GetDeviceContext());
+	m_RetainedBrightnessTexture->ClearRenderTarget(m_device->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+	//Create the view, world, ortho matrix
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_device->GetWorldMatrix(worldMatrix);
+	m_RetainedBrightnessTexture->GetOrthoMatrix(orthoMatrix);
+
+	// 2d rendering -> turn off z buffer
+	m_device->TurnZBufferOff();
+
+	//Render the texture
+	m_SmallWindow->Render(m_device->GetDeviceContext());
+	result = m_retainBrighnessShader->Render(m_device->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+		m_DownSampleTexure->GetShaderResourceView(), 180);
+	if (!result)
+	{
+		return false;
+	}
+
+	//Reset everything to defaults
+	m_device->TurnZBufferOn();
+	m_device->SetBackBufferRenderTarget();
+	m_device->ResetViewport();
+
+	return true;
+}
 
 bool Graphics::DownSampleTexture()
 {
@@ -451,7 +534,7 @@ bool Graphics::RenderHorizontalBlurToTexture()
 	//Render the texture
 	m_SmallWindow->Render(m_device->GetDeviceContext());
 	result = m_HorizontalBlurShader->Render(m_device->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_DownSampleTexure->GetShaderResourceView(), screenSizeX);
+		m_RetainedBrightnessTexture->GetShaderResourceView(), screenSizeX);
 	if (!result)
 	{
 		return false;
@@ -465,13 +548,11 @@ bool Graphics::RenderHorizontalBlurToTexture()
 	return true;
 }
 
-
 bool Graphics::RenderVerticalBlurToTexture()
 {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	float screenSizeY;
 	bool result;
-
 
 	screenSizeY = (float)m_VerticalBlurTexture->GetTextureHeight();
 
@@ -561,8 +642,8 @@ bool Graphics::Render2DTextureScene()
 
 	//Render the texture
 	m_FullScreenWindow->Render(m_device->GetDeviceContext());
-	result = m_TextureShader->Render(m_device->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_UpSampleTexure->GetShaderResourceView(), NULL, NULL, NULL);
+	result = m_bloomShader->Render(m_device->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView(),
+		m_UpSampleTexure->GetShaderResourceView(), 0.5);
 	if (!result)
 	{
 		return false;

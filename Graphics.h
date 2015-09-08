@@ -12,6 +12,8 @@
 #include "OrthoWindow.h"
 #include "resource.h"
 #include "ShaderStructures.h"
+#include "RetainBrightnessShader.h"
+#include "GlowShader.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -35,6 +37,7 @@ private:
 	bool Render(float);
 
 	bool RenderSceneToTexture(float);
+	bool RetainBrightnessTexture();
 	bool DownSampleTexture();
 	bool RenderHorizontalBlurToTexture();
 	bool RenderVerticalBlurToTexture();
@@ -68,8 +71,10 @@ private:
 
 	HorizontalBlurShader* m_HorizontalBlurShader;
 	VerticalBlurShader* m_VerticalBlurShader;
+	RetainBrightnessShader* m_retainBrighnessShader;
+	GlowShader* m_bloomShader;
 
-	RenderTexture *m_RenderTexture, *m_DownSampleTexure, *m_HorizontalBlurTexture, *m_VerticalBlurTexture, *m_UpSampleTexure;
+	RenderTexture *m_RenderTexture, *m_DownSampleTexure, *m_HorizontalBlurTexture, *m_VerticalBlurTexture, *m_UpSampleTexure, *m_RetainedBrightnessTexture, *m_BloomTexture;
 
 	OrthoWindow *m_SmallWindow, *m_FullScreenWindow;
 };

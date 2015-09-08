@@ -47,6 +47,12 @@
     <ClCompile Include="Landscape3DRenderer.cpp">
       <Filter>Landscape</Filter>
     </ClCompile>
+    <ClCompile Include="GlowShader.cpp">
+      <Filter>PostFx</Filter>
+    </ClCompile>
+    <ClCompile Include="RetainBrightnessShader.cpp">
+      <Filter>PostFx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body3DRenderer.h">
@@ -100,6 +106,12 @@
     <ClInclude Include="Landscape3DRenderer.h">
       <Filter>Landscape</Filter>
     </ClInclude>
+    <ClInclude Include="GlowShader.h">
+      <Filter>PostFx</Filter>
+    </ClInclude>
+    <ClInclude Include="RetainBrightnessShader.h">
+      <Filter>PostFx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
@@ -144,6 +156,18 @@
     </FxCompile>
     <FxCompile Include="TexturePixelShader.hlsl">
       <Filter>Helper</Filter>
+    </FxCompile>
+    <FxCompile Include="RetainBrightnessVertexShader.hlsl">
+      <Filter>PostFx</Filter>
+    </FxCompile>
+    <FxCompile Include="RetainBrightnessPixelShader.hlsl">
+      <Filter>PostFx</Filter>
+    </FxCompile>
+    <FxCompile Include="BloomPixelShader.hlsl">
+      <Filter>PostFx</Filter>
+    </FxCompile>
+    <FxCompile Include="BloomVertexShader.hlsl">
+      <Filter>PostFx</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
