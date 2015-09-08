@@ -244,11 +244,6 @@ bool Landscape3DRenderer::InitMaterials(const aiScene* pScene, const std::string
 		pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specular);
 		m_Materials[i].materialSpecular = XMFLOAT3(specular.r, specular.g, specular.b);
 
-		aiColor3D emissive(1.f, 1.f, 1.f);
-		//aiColor3D emissive(0.f, 0.f, 0.f);
-		pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, emissive);
-		m_Materials[i].materialEmissive = XMFLOAT3(emissive.r, emissive.g, emissive.b);
-
 		float shininess = 0.f;
 		pMaterial->Get(AI_MATKEY_SHININESS, shininess);
 		m_Materials[i].materialPower = shininess;

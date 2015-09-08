@@ -20,18 +20,6 @@ public:
 	void Release();
 	bool Render(ID3D11DeviceContext*, int, XMMATRIX&, XMMATRIX&, XMMATRIX&, ID3D11ShaderResourceView*, ShaderStructures::MaterialType*, ShaderStructures::CameraType*, ShaderStructures::LightType*);
 
-	struct InputShaderBuffer
-	{
-		XMFLOAT4 materialAmbient;
-		XMFLOAT4 materialDiffuse;
-		XMFLOAT3 materialSpecular;
-		XMFLOAT3 materialEmissive;
-		float materialPower;
-		XMFLOAT3 LightPosition;
-		XMFLOAT3 LightDiffuseColor;
-		XMFLOAT3 LightSpecularColor;
-		XMFLOAT3 cameraPosition;
-	};
 private:
 	Camera* m_pCameraClass;
 
@@ -39,7 +27,9 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
-	ID3D11Buffer* m_inputBuffer;
+	ID3D11Buffer* m_materialBuffer;
+	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* m_cameraBuffer;
 
 	ID3D11SamplerState* m_sampleState;
 

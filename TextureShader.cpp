@@ -8,7 +8,9 @@ TextureShader::TextureShader(Camera* camcl)
 	m_layout = 0;
 	m_matrixBuffer = 0;
 	m_sampleState = 0;
-	m_inputBuffer = 0;
+	m_materialBuffer = 0;
+	m_cameraBuffer = 0;
+	m_lightBuffer = 0;
 	m_pCameraClass = camcl;
 }
 
@@ -67,7 +69,9 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
-	D3D11_BUFFER_DESC inputBufferDesc;
+	D3D11_BUFFER_DESC materialBufferDesc;
+	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC cameraBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 
 
@@ -209,14 +213,40 @@ bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 		return false;
 	}
 
-	inputBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	inputBufferDesc.ByteWidth = sizeof(InputShaderBuffer);
-	inputBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	inputBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	inputBufferDesc.MiscFlags = 0;
-	inputBufferDesc.StructureByteStride = 0;
+	materialBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	materialBufferDesc.ByteWidth = sizeof(ShaderStructures::MaterialType);
+	materialBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	materialBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	materialBufferDesc.MiscFlags = 0;
+	materialBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&inputBufferDesc, NULL, &m_inputBuffer);
+	result = device->CreateBuffer(&materialBufferDesc, NULL, &m_materialBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(ShaderStructures::LightType);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cameraBufferDesc.ByteWidth = sizeof(ShaderStructures::CameraType);
+	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cameraBufferDesc.MiscFlags = 0;
+	cameraBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer);
 	if (FAILED(result))
 	{
 		return false;
@@ -232,7 +262,9 @@ void TextureShader::ShutdownShader()
 	SafeRelease(m_layout);
 	SafeRelease(m_pixelShader);
 	SafeRelease(m_vertexShader);
-	SafeRelease(m_inputBuffer);
+	SafeRelease(m_materialBuffer);
+	SafeRelease(m_cameraBuffer);
+	SafeRelease(m_lightBuffer);
 
 	return;
 }
@@ -278,7 +310,9 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ShaderStructures::MatrixType* dataPtr;
-	InputShaderBuffer* matDataPtr;
+	ShaderStructures::MaterialType* matDataPtr;
+	ShaderStructures::LightType* lightDataPtr;
+	ShaderStructures::CameraType* cameraDataPtr;
 	unsigned int bufferNumber;
 
 	// Transpose the matrices to prepare them for the shader.
@@ -326,32 +360,69 @@ bool TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 	if (materialBuffer && lightBuffer && cameraBuffer)
 	{
 		// Lock the material constant buffer so it can be written to.
-		result = deviceContext->Map(m_inputBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		result = deviceContext->Map(m_materialBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 		{
 			return false;
 		}
 
-		matDataPtr = (InputShaderBuffer*)mappedResource.pData;
+		matDataPtr = (ShaderStructures::MaterialType*)mappedResource.pData;
 
 		// Copy the material variables into the constant buffer.
 		matDataPtr->materialAmbient = materialBuffer->materialAmbient;
 		matDataPtr->materialDiffuse = materialBuffer->materialDiffuse;
-		matDataPtr->materialEmissive = materialBuffer->materialEmissive;
 		matDataPtr->materialPower = materialBuffer->materialPower;
 		matDataPtr->materialSpecular = materialBuffer->materialSpecular;
-		matDataPtr->LightDiffuseColor = lightBuffer->LightDiffuseColor;
-		matDataPtr->LightPosition = lightBuffer->LightPosition;
-		matDataPtr->LightSpecularColor = lightBuffer->LightSpecularColor;
-		matDataPtr->cameraPosition = cameraBuffer->cameraPosition;
+
 
 		// Unlock the constant buffer.
-		deviceContext->Unmap(m_inputBuffer, 0);
+		deviceContext->Unmap(m_materialBuffer, 0);
 
 		bufferNumber = 0;
 
 		// Finanly set the constant buffer in the pixel shader with the updated values.
-		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_inputBuffer);
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_materialBuffer);
+
+		// Lock the light constant buffer so it can be written to.
+		result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		lightDataPtr = (ShaderStructures::LightType*)mappedResource.pData;
+
+		// Copy the material variables into the constant buffer.
+		lightDataPtr->LightColor = lightBuffer->LightColor;
+		lightDataPtr->LightPosition = lightBuffer->LightPosition;
+
+		// Unlock the constant buffer.
+		deviceContext->Unmap(m_lightBuffer, 0);
+
+		bufferNumber = 1;
+
+		// Finanly set the constant buffer in the pixel shader with the updated values.
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+
+		// Lock the camera constant buffer so it can be written to.
+		result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		cameraDataPtr = (ShaderStructures::CameraType*)mappedResource.pData;
+
+		// Copy the material variables into the constant buffer.
+		cameraDataPtr->cameraPosition = cameraBuffer->cameraPosition;
+
+		// Unlock the constant buffer.
+		deviceContext->Unmap(m_cameraBuffer, 0);
+
+		bufferNumber = 2;
+
+		// Finanly set the constant buffer in the pixel shader with the updated values.
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
 	}
 
 	return true;

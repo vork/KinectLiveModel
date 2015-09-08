@@ -173,7 +173,6 @@ void Body3DRenderer::DrawBone(ID3D11DeviceContext* context, TextureShader* texSh
 	materialType.materialDiffuse = XMFLOAT4(color.x, color.y, color.z, 1.f);
 	materialType.materialPower = 0.f;
 	materialType.materialSpecular = XMFLOAT3(color.x, color.y, color.z);
-	materialType.materialEmissive = XMFLOAT3(0.f, 0.f, 0.f);
 
 	bool result = texShader->Render(context, m_indexCount, *world, *view, *projection, NULL, &materialType, camera, light);
 	if (!result)

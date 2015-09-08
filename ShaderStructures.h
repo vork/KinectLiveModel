@@ -19,7 +19,6 @@ namespace ShaderStructures {
 		XMFLOAT4 materialAmbient;
 		XMFLOAT4 materialDiffuse;
 		XMFLOAT3 materialSpecular;
-		XMFLOAT3 materialEmissive;
 		float materialPower;
 	};
 
@@ -38,7 +37,6 @@ namespace ShaderStructures {
 	struct LightType
 	{
 		XMFLOAT3 LightPosition;
-		XMFLOAT3 LightDiffuseColor;
-		XMFLOAT3 LightSpecularColor;
+		XMFLOAT3 LightColor;
 	};
 }

@@ -419,8 +419,7 @@ bool Graphics::RenderSceneToTexture(float rotation)
 
 	cameraType.cameraPosition = m_Camera->GetPosition();
 
-	lightType.LightSpecularColor = light.speccolor;
-	lightType.LightDiffuseColor = light.diffcolor;
+	lightType.LightColor = light.diffcolor;
 	lightType.LightPosition = light.pos;
 
 	// render the landscape
